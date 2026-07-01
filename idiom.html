@@ -133,7 +133,7 @@
         </div>
         <div class="netnote" id="netnote"></div>
         <button class="btn" id="retryBtn">한 번 더</button>
-        <button class="btn ghost" id="homeBtn">🏠 홈으로</button>
+        <button class="btn ghost" id="homeBtn">🏠 처음으로</button>
       </div>
     </section>
 
@@ -364,7 +364,7 @@ function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<'
   $('startBtn').onclick=startGame;
   $('nick').addEventListener('keydown',e=>{ if(e.key==='Enter') startGame(); });
   $('retryBtn').onclick=startGame;
-  $('homeBtn').onclick=()=>{ location.href='/'; };
+  $('homeBtn').onclick=()=>{ show('startScreen'); };
 })();
 </script>
 </body>
