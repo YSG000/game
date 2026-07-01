@@ -1,27 +1,45 @@
 # -*- coding: utf-8 -*-
 """
-오늘의 기억 — 부서 순위표 서버
+두뇌 게임 허브 — 부서 순위표 서버
 --------------------------------
-어제 빠졌던 파이썬 서버입니다. 설치 없이 표준 라이브러리만 사용합니다.
+설치 없이 표준 라이브러리만 사용합니다.
 
 실행:  python leaderboard_server.py
 접속:  http://localhost:8000  (같은 와이파이의 다른 기기는 http://<이 PC IP>:8000)
 
-게임 HTML(memory_daily_prototype.html)을 함께 서빙하고,
+- /                         → 게임 선택 허브
+- /memory                   → 오늘의 기억 (격자 기억 게임)
+- /idiom                    → 사자성어 4지선다 게임
+- GET  /api/scores?game=X   → 게임별 순위(JSON 배열). game 미지정 시 memory.
+- POST /api/score           → {game,name,score,age,mode} 제출. 사람·모드·게임별 최고점 유지.
+
 점수는 같은 폴더의 scores.json 에 누적 저장합니다.
-사람·모드별로 "최고 점수" 한 개만 유지합니다.
+game 필드가 없는 기존 기록은 자동으로 'memory' 로 취급합니다(하위호환).
 """
 
 import json
 import os
 import sys
 import threading
+from urllib.parse import urlparse, parse_qs
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 PORT = int(os.environ.get("PORT", "8000"))
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-HTML_FILE = os.path.join(BASE_DIR, "memory_daily_prototype.html")
 DATA_FILE = os.environ.get("SCORES_FILE", os.path.join(BASE_DIR, "scores.json"))
+
+# 경로 → 파일 매핑
+PAGES = {
+    "/": "hub.html",
+    "/hub": "hub.html",
+    "/memory": "memory_daily_prototype.html",
+    "/memory_daily_prototype.html": "memory_daily_prototype.html",
+    "/index.html": "memory_daily_prototype.html",  # 하위호환
+    "/idiom": "idiom.html",
+    "/idiom.html": "idiom.html",
+}
+
+GAMES = ("memory", "idiom")
 
 _lock = threading.Lock()
 
@@ -42,34 +60,36 @@ def save_records(records):
     os.replace(tmp, DATA_FILE)
 
 
-def upsert(records, name, score, age, mode):
-    """사람(name) + 모드(mode)별 최고 점수만 유지."""
+def _now_ms():
+    import time
+    return int(time.time() * 1000)
+
+
+def upsert(records, name, score, age, mode, game):
+    """사람(name) + 모드(mode) + 게임(game)별 최고 점수만 유지."""
     name = (name or "익명").strip()[:12] or "익명"
+    game = game if game in GAMES else "memory"
     mode = mode if mode in ("normal", "hard") else "normal"
     score = max(0, min(1_000_000, int(score)))
     age = max(0, min(200, int(age)))
 
     for r in records:
-        if r.get("id") == name and (r.get("mode") or "normal") == mode:
+        if (r.get("id") == name
+                and (r.get("mode") or "normal") == mode
+                and (r.get("game") or "memory") == game):
             if score > r.get("best", 0):
                 r["best"] = score
                 r["bestAge"] = age
             r["plays"] = r.get("plays", 0) + 1
             r["last"] = _now_ms()
             return r
-    rec = {"id": name, "mode": mode, "best": score, "bestAge": age,
-           "plays": 1, "last": _now_ms()}
+    rec = {"id": name, "game": game, "mode": mode, "best": score,
+           "bestAge": age, "plays": 1, "last": _now_ms()}
     records.append(rec)
     return rec
 
 
-def _now_ms():
-    import time
-    return int(time.time() * 1000)
-
-
 class Handler(BaseHTTPRequestHandler):
-    # 콘솔 로그 간소화
     def log_message(self, fmt, *args):
         pass
 
@@ -90,33 +110,42 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
 
-    def _send_html(self):
+    def _send_file(self, filename):
+        path = os.path.join(BASE_DIR, filename)
         try:
-            with open(HTML_FILE, "rb") as f:
+            with open(path, "rb") as f:
                 body = f.read()
         except FileNotFoundError:
             self.send_response(500)
             self.end_headers()
-            self.wfile.write("memory_daily_prototype.html 을 찾을 수 없습니다. 같은 폴더에 두세요."
+            self.wfile.write(f"{filename} 을(를) 찾을 수 없습니다. 같은 폴더에 두세요."
                              .encode("utf-8"))
             return
         self.send_response(200)
         self.send_header("Content-Type", "text/html; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")  # 수정 즉시 반영
         self.end_headers()
         self.wfile.write(body)
 
     def do_GET(self):
-        if self.path in ("/", "/index.html", "/memory_daily_prototype.html"):
-            self._send_html()
-        elif self.path.startswith("/api/scores"):
-            self._send_json(200, load_records())
+        path = urlparse(self.path).path
+        if path in PAGES:
+            self._send_file(PAGES[path])
+        elif path == "/api/scores":
+            q = parse_qs(urlparse(self.path).query)
+            game = (q.get("game", ["memory"])[0]) or "memory"
+            if game not in GAMES:
+                game = "memory"
+            recs = [r for r in load_records()
+                    if (r.get("game") or "memory") == game]
+            self._send_json(200, recs)
         else:
             self.send_response(404)
             self.end_headers()
 
     def do_POST(self):
-        if self.path != "/api/score":
+        if urlparse(self.path).path != "/api/score":
             self.send_response(404)
             self.end_headers()
             return
@@ -127,17 +156,20 @@ class Handler(BaseHTTPRequestHandler):
         except Exception:
             body = {}
 
+        game = body.get("game", "memory")
         with _lock:
             records = load_records()
             upsert(records,
                    body.get("name"), body.get("score", 0),
-                   body.get("age", 0), body.get("mode", "normal"))
+                   body.get("age", 0), body.get("mode", "normal"), game)
             save_records(records)
-            self._send_json(200, records)
+            # 방금 제출한 게임의 순위만 돌려줌
+            recs = [r for r in records if (r.get("game") or "memory")
+                    == (game if game in GAMES else "memory")]
+            self._send_json(200, recs)
 
 
 def _safe_print(msg):
-    """윈도우 한국어 콘솔(cp949)에서도 죽지 않게 안전하게 출력."""
     try:
         print(msg)
     except UnicodeEncodeError:
@@ -146,7 +178,6 @@ def _safe_print(msg):
 
 
 def main():
-    # 콘솔 인코딩을 UTF-8로 (가능한 환경에서). 실패해도 무시.
     try:
         sys.stdout.reconfigure(encoding="utf-8")
     except Exception:
@@ -154,7 +185,7 @@ def main():
 
     server = ThreadingHTTPServer(("0.0.0.0", PORT), Handler)
     _safe_print("=" * 56)
-    _safe_print("  오늘의 기억 - 부서 순위표 서버")
+    _safe_print("  두뇌 게임 허브 - 부서 순위표 서버")
     _safe_print("=" * 56)
     _safe_print(f"  접속(이 PC):   http://localhost:{PORT}")
     _safe_print(f"  같은 네트워크: http://<이 PC의 IP>:{PORT}")

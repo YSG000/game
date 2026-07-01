@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>두뇌 게임 허브</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<style>
+  :root{
+    --canvas:#0F1B22; --panel:#16262F; --panel-2:#1C2F39; --tile:#223A45;
+    --tile-edge:#2C4A57; --amber:#F2B544; --amber-dim:#9c7a3a; --mint:#5BD6A6;
+    --coral:#E8654F; --text:#EAF2F4; --muted:#8AA3AD;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{
+    font-family:'Pretendard',-apple-system,system-ui,sans-serif;
+    background:radial-gradient(1200px 600px at 50% -10%, #1a2e38 0%, var(--canvas) 60%);
+    color:var(--text); min-height:100vh; display:flex; align-items:center;
+    justify-content:center; padding:24px;
+  }
+  .wrap{width:100%; max-width:440px;}
+  .head{text-align:center; margin-bottom:28px;}
+  .kicker{color:var(--amber); font-weight:700; letter-spacing:.14em; font-size:12px;}
+  h1{font-size:30px; font-weight:800; margin-top:8px; letter-spacing:-.02em;}
+  .sub{color:var(--muted); margin-top:8px; font-size:14px;}
+  .cards{display:flex; flex-direction:column; gap:14px;}
+  .card{
+    display:block; text-decoration:none; color:inherit;
+    background:linear-gradient(180deg, var(--panel-2), var(--panel));
+    border:1px solid var(--tile-edge); border-radius:18px; padding:20px;
+    transition:transform .12s ease, border-color .12s ease;
+    position:relative; overflow:hidden;
+  }
+  .card:active{transform:scale(.985);}
+  .card:hover{border-color:var(--amber-dim);}
+  .card .emoji{font-size:34px;}
+  .card h2{font-size:20px; font-weight:800; margin-top:10px;}
+  .card p{color:var(--muted); font-size:13px; margin-top:6px; line-height:1.5;}
+  .card .go{
+    position:absolute; right:18px; top:20px; color:var(--amber);
+    font-size:22px; font-weight:800;
+  }
+  .tag{
+    display:inline-block; margin-top:12px; font-size:11px; font-weight:700;
+    color:var(--mint); background:rgba(91,214,166,.1);
+    border:1px solid rgba(91,214,166,.25); border-radius:999px; padding:4px 10px;
+  }
+  .foot{text-align:center; color:var(--muted); font-size:12px; margin-top:24px; line-height:1.6;}
+  .dot{display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:6px;}
+  .on{background:var(--mint);} .off{background:var(--coral);}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="head">
+      <div class="kicker">BRAIN ARCADE</div>
+      <h1>두뇌 게임 허브</h1>
+      <div class="sub">오늘 하루, 한 판으로 두뇌를 깨우세요.</div>
+    </div>
+
+    <div class="cards">
+      <a class="card" href="/memory">
+        <span class="go">›</span>
+        <div class="emoji">🧠</div>
+        <h2>오늘의 기억</h2>
+        <p>빛나는 칸을 기억하고 똑같이 누르는 격자 기억 게임. 일반 5라운드 · 하드 7×7.</p>
+        <span class="tag">기억력 · 패턴</span>
+      </a>
+
+      <a class="card" href="/idiom">
+        <span class="go">›</span>
+        <div class="emoji">📜</div>
+        <h2>사자성어 도전</h2>
+        <p>뜻을 보고 알맞은 사자성어를 4지선다로 고르기. 10문제 · 문제당 5초 승부.</p>
+        <span class="tag">상식 · 순발력</span>
+      </a>
+    </div>
+
+    <div class="foot" id="foot">
+      <span class="dot off" id="dot"></span><span id="netmsg">순위 서버 확인 중…</span>
+    </div>
+  </div>
+
+<script>
+  (async function(){
+    const dot=document.getElementById('dot'), msg=document.getElementById('netmsg');
+    if(location.protocol!=='http:'&&location.protocol!=='https:'){
+      msg.textContent='혼자 모드 (파일로 열림 · 순위 저장 안 됨)'; return;
+    }
+    try{
+      const r=await fetch('/api/scores?game=memory',{cache:'no-store'});
+      if(r.ok){ await r.json(); dot.className='dot on';
+        msg.textContent='부서 순위 서버에 연결됨 · 기록이 저장됩니다'; return; }
+    }catch(e){}
+    msg.textContent='순위 서버에 연결 안 됨 (혼자 모드)';
+  })();
+</script>
+</body>
+</html>
