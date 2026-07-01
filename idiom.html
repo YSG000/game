@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>사자성어 도전</title>
+<title>사자성어 스피드퀴즈</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap">
 <style>
   :root{
     --canvas:#0F1B22; --panel:#16262F; --panel-2:#1C2F39; --tile:#223A45;
@@ -13,134 +14,200 @@
     --coral:#E8654F; --text:#EAF2F4; --muted:#8AA3AD; --muted-2:#5E757E;
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{min-height:100%;}
   body{
+    background:var(--canvas); color:var(--text);
     font-family:'Pretendard',-apple-system,system-ui,sans-serif;
-    background:radial-gradient(1200px 600px at 50% -10%, #1a2e38 0%, var(--canvas) 60%);
-    color:var(--text); min-height:100vh; display:flex; align-items:center;
-    justify-content:center; padding:20px;
+    display:flex; justify-content:center; align-items:flex-start;
+    min-height:100vh; overflow-x:hidden;
   }
-  .wrap{width:100%; max-width:440px;}
-  .home{position:fixed; top:16px; left:16px; color:var(--muted); text-decoration:none; font-size:14px;}
-  .home:hover{color:var(--text);}
-  .kicker{color:var(--amber); font-weight:700; letter-spacing:.14em; font-size:12px; text-align:center;}
-  h1{font-size:28px; font-weight:800; text-align:center; margin-top:8px; letter-spacing:-.02em;}
-  .sub{color:var(--muted); text-align:center; margin-top:10px; font-size:14px; line-height:1.6;}
-  .panel{
-    background:linear-gradient(180deg, var(--panel-2), var(--panel));
-    border:1px solid var(--tile-edge); border-radius:20px; padding:24px; margin-top:22px;
-  }
-  input{
-    width:100%; padding:14px 16px; border-radius:12px; border:1px solid var(--tile-edge);
-    background:var(--tile); color:var(--text); font-size:16px; font-family:inherit; text-align:center;
-  }
-  input:focus{outline:none; border-color:var(--amber-dim);}
-  .btn{
-    width:100%; padding:16px; border:none; border-radius:14px; font-size:17px; font-weight:800;
-    font-family:inherit; cursor:pointer; margin-top:14px; color:#10202a;
-    background:linear-gradient(180deg,#ffcf6b,var(--amber));
-  }
-  .btn:active{transform:scale(.99);}
-  .btn.ghost{background:transparent; color:var(--muted); border:1px solid var(--tile-edge); font-weight:700;}
-  .hide{display:none !important;}
+  .wrap{width:100%; max-width:460px; min-height:100vh; padding:26px 22px 34px; display:flex; flex-direction:column;}
+  button{font-family:inherit; cursor:pointer;}
+  .num{font-family:'Space Grotesk','Pretendard',sans-serif;font-variant-numeric:tabular-nums;}
+  .accent{color:var(--amber);}
+  @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
 
-  /* 플레이 화면 */
-  .topbar{display:flex; justify-content:space-between; align-items:center; font-size:13px; color:var(--muted); margin-bottom:14px;}
-  .topbar b{color:var(--text); font-weight:800;}
-  .timerwrap{height:8px; background:var(--tile); border-radius:999px; overflow:hidden; margin-bottom:22px;}
-  .timerbar{height:100%; width:100%; background:linear-gradient(90deg,var(--mint),var(--amber)); border-radius:999px;}
-  .qlabel{color:var(--amber); font-size:12px; font-weight:700; letter-spacing:.1em; text-align:center;}
-  .qmean{font-size:20px; font-weight:700; line-height:1.55; text-align:center; margin:14px 4px 24px; min-height:66px; display:flex; align-items:center; justify-content:center;}
-  .choices{display:flex; flex-direction:column; gap:12px;}
-  .choice{
-    width:100%; padding:16px; border-radius:14px; border:1px solid var(--tile-edge);
-    background:var(--tile); color:var(--text); font-size:19px; font-weight:800; font-family:inherit;
-    cursor:pointer; letter-spacing:.04em; transition:transform .08s, background .15s, border-color .15s;
-  }
+  .screen{display:none; flex:1; flex-direction:column;}
+  .screen.active{display:flex; animation:fade .35s ease;}
+
+  /* 게임 전환 탭 */
+  .game-switch{display:flex;gap:8px;margin-bottom:16px;}
+  .game-switch a{flex:1;text-align:center;text-decoration:none;padding:11px 8px;border-radius:12px;
+    font-weight:800;font-size:14px;border:1px solid var(--tile-edge);color:var(--muted);
+    background:var(--panel);transition:transform .12s,background .15s,color .15s,border-color .15s;}
+  .game-switch a.on{color:#10202a;background:linear-gradient(180deg,#ffcf6b,var(--amber));border-color:transparent;}
+  .game-switch a:active{transform:scale(.98);}
+
+  /* 시작 */
+  .eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--amber-dim);font-weight:600;}
+  .start-top{display:flex;justify-content:space-between;align-items:flex-start;}
+  .date-tag{font-size:13px;color:var(--muted);margin-top:4px;}
+  .streak{display:flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--tile-edge);
+    padding:7px 11px;border-radius:99px;font-size:13px;font-weight:600;}
+  .hero{margin-top:48px;}
+  .hero h1{font-size:42px;line-height:1.04;font-weight:800;letter-spacing:-.02em;}
+  .hero p{margin-top:16px;color:var(--muted);font-size:15px;line-height:1.6;max-width:320px;}
+  .ident{margin-top:22px;background:var(--panel);border:1px solid var(--tile-edge);border-radius:14px;padding:14px;}
+  .ident label{display:block;font-size:12px;color:var(--muted);margin-bottom:7px;letter-spacing:.02em;}
+  .ident input{width:100%;background:var(--canvas);border:1px solid var(--tile-edge);border-radius:10px;
+    color:var(--text);font-family:inherit;font-size:15px;padding:11px 12px;outline:none;text-align:left;}
+  .ident input:focus{border-color:var(--amber-dim);}
+  .conn-state{font-size:12px;margin-top:9px;line-height:1.5;color:var(--muted-2);}
+  .conn-state.ok{color:var(--mint);} .conn-state.warn{color:var(--coral);}
+  .spacer{flex:1;min-height:20px;}
+  .cta{width:100%;background:var(--amber);color:#10202a;font-size:17px;font-weight:700;
+    padding:17px;border-radius:15px;letter-spacing:-.01em;transition:transform .12s;border:none;}
+  .cta:active{transform:scale(.98);}
+  .cta.ghost{background:transparent;color:var(--text);border:1px solid var(--tile-edge);}
+  .hint{text-align:center;color:var(--muted-2);font-size:12.5px;margin-top:14px;line-height:1.5;}
+  .start-rank{margin-top:18px;background:var(--panel);border:1px solid var(--tile-edge);border-radius:14px;overflow:hidden;}
+  .sr-head{padding:12px 15px 10px;font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;}
+  .sr-sub{color:var(--muted);font-weight:600;font-size:11px;}
+  .sr-row{display:flex;align-items:center;gap:12px;padding:9px 15px;border-top:1px solid #11212a;font-size:13.5px;}
+  .sr-rk{width:22px;color:var(--muted);font-weight:700;}
+  .sr-nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .sr-sc{color:var(--amber);font-weight:700;}
+  .sr-empty{padding:14px 15px;color:var(--muted-2);font-size:13px;text-align:center;}
+
+  /* 플레이 */
+  .play-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+  .play-head .qcount{font-size:14px;color:var(--muted);}
+  .play-head .qcount b{color:var(--text);font-weight:800;}
+  .score-now{font-size:14px;color:var(--muted);}
+  .score-now b{color:var(--amber);font-weight:800;}
+  .timerwrap{height:8px;background:var(--panel);border:1px solid var(--tile-edge);border-radius:999px;overflow:hidden;margin-bottom:26px;}
+  .timerbar{height:100%;width:100%;background:linear-gradient(90deg,var(--mint),var(--amber));border-radius:999px;}
+  .qlabel{color:var(--amber);font-size:12px;font-weight:700;letter-spacing:.1em;text-align:center;}
+  .qmean{font-size:21px;font-weight:700;line-height:1.55;text-align:center;margin:16px 6px 28px;
+    min-height:72px;display:flex;align-items:center;justify-content:center;}
+  .choices{display:flex;flex-direction:column;gap:12px;}
+  .choice{width:100%;padding:17px;border-radius:14px;border:1px solid var(--tile-edge);background:var(--tile);
+    color:var(--text);font-size:19px;font-weight:800;letter-spacing:.04em;transition:transform .08s,background .15s,border-color .15s,color .15s;}
   .choice:active{transform:scale(.99);}
-  .choice.correct{background:rgba(91,214,166,.18); border-color:var(--mint); color:var(--mint);}
-  .choice.wrong{background:rgba(232,101,79,.16); border-color:var(--coral); color:var(--coral);}
-  .choice:disabled{cursor:default;}
+  .choice.correct{background:rgba(91,214,166,.18);border-color:var(--mint);color:var(--mint);}
+  .choice.wrong{background:rgba(232,101,79,.16);border-color:var(--coral);color:var(--coral);}
 
-  /* 결과 */
-  .bigscore{font-size:52px; font-weight:800; text-align:center; color:var(--amber); font-family:'Pretendard';}
-  .scorelabel{text-align:center; color:var(--muted); font-size:13px; margin-top:2px;}
-  .stats{display:flex; justify-content:center; gap:22px; margin:18px 0 6px; color:var(--muted); font-size:13px;}
-  .stats b{display:block; color:var(--text); font-size:20px; font-weight:800; text-align:center;}
-  .board{margin-top:20px;}
-  .board h3{font-size:14px; color:var(--muted); margin-bottom:10px; text-align:center;}
-  .row{display:flex; align-items:center; padding:10px 12px; border-radius:10px; font-size:14px;}
-  .row+.row{margin-top:4px;}
-  .row.me{background:rgba(242,181,68,.12); border:1px solid var(--amber-dim);}
-  .rank{width:30px; color:var(--muted); font-weight:800;}
-  .rname{flex:1; font-weight:700;}
-  .rscore{color:var(--amber); font-weight:800;}
-  .me .rname{color:var(--amber);}
-  .netnote{text-align:center; font-size:12px; color:var(--muted-2); margin-top:16px; line-height:1.5;}
+  /* 결과 (메모리 게임과 동일 배치) */
+  .result-hero{text-align:center;margin-top:18px;}
+  .result-hero .label{font-size:13px;color:var(--muted);letter-spacing:.04em;}
+  .pct{font-size:72px;font-weight:700;line-height:1;margin-top:6px;letter-spacing:-.03em;}
+  .pct .small{font-size:30px;color:var(--muted);font-weight:500;}
+  .result-hero .verdict{margin-top:10px;font-size:15px;color:var(--amber);font-weight:600;}
+  .stat-row{display:flex;gap:11px;margin-top:24px;}
+  .stat{flex:1;background:var(--panel);border:1px solid var(--tile-edge);border-radius:14px;padding:15px 13px;}
+  .stat .k{font-size:12px;color:var(--muted);}
+  .stat .v{font-size:26px;font-weight:700;margin-top:5px;}
+  .stat .v small{font-size:14px;color:var(--muted);font-weight:500;}
+  .lb{margin-top:24px;background:var(--panel);border:1px solid var(--tile-edge);border-radius:16px;overflow:hidden;}
+  .lb-head{display:flex;justify-content:space-between;align-items:center;padding:14px 16px 12px;}
+  .lb-head .t{font-size:14px;font-weight:700;}
+  .lb-head .src{font-size:11px;color:var(--muted-2);}
+  .lb-head .league{font-size:12px;color:var(--amber);font-weight:600;}
+  .lb-row{display:flex;align-items:center;gap:12px;padding:11px 16px;border-top:1px solid #11212a;font-size:14px;}
+  .lb-row .rk{width:30px;color:var(--muted);font-weight:600;}
+  .lb-row .nm{flex:1;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .lb-row .sc{color:var(--muted);font-weight:600;}
+  .lb-row.me{background:linear-gradient(90deg,rgba(242,181,68,.14),rgba(242,181,68,.04));}
+  .lb-row.me .nm{color:var(--amber);font-weight:700;}
+  .lb-gap{text-align:center;color:var(--muted-2);font-size:13px;padding:7px;border-top:1px solid #11212a;}
+  .nudge{margin-top:18px;background:var(--panel-2);border:1px solid var(--amber-dim);border-radius:13px;
+    padding:14px 15px;font-size:13.5px;line-height:1.55;color:var(--text);}
+  .result-actions{margin-top:18px;display:flex;flex-direction:column;gap:10px;}
 </style>
 </head>
 <body>
-  <div class="wrap">
+<div class="wrap">
 
-    <!-- 시작 -->
-    <section id="startScreen">
-      <style>
-        .game-switch{display:flex;gap:8px;margin-bottom:18px;}
-        .game-switch a{flex:1;text-align:center;text-decoration:none;padding:11px 8px;border-radius:12px;
-          font-weight:800;font-size:14px;border:1px solid var(--tile-edge);color:var(--muted);
-          background:var(--panel);transition:transform .12s,background .15s,color .15s,border-color .15s;}
-        .game-switch a.on{color:#10202a;background:linear-gradient(180deg,#ffcf6b,var(--amber));border-color:transparent;}
-        .game-switch a:active{transform:scale(.98);}
-      </style>
-      <nav class="game-switch">
-        <a href="index.html">🧠 오늘의 기억</a>
-        <a href="idiom.html" class="on">📜 사자성어 스피드퀴즈</a>
-      </nav>
-      <div class="kicker">IDIOM CHALLENGE</div>
-      <h1>사자성어 도전</h1>
-      <div class="sub">뜻을 보고 알맞은 사자성어를 고르세요.<br>10문제 · 문제당 5초 승부.</div>
-      <div class="panel">
-        <input id="nick" maxlength="12" placeholder="닉네임을 입력하세요" autocomplete="off">
-        <button class="btn" id="startBtn">시작하기</button>
+  <!-- ============ START ============ -->
+  <section class="screen active" id="screen-start">
+    <nav class="game-switch">
+      <a href="index.html">🧠 오늘의 기억</a>
+      <a href="idiom.html" class="on">📜 사자성어 스피드퀴즈</a>
+    </nav>
+    <div class="start-top">
+      <div>
+        <div class="eyebrow">사자성어 스피드퀴즈</div>
+        <div class="date-tag" id="dateTag">—</div>
       </div>
-    </section>
+      <div class="streak">📜 <b>10</b>문제</div>
+    </div>
 
-    <!-- 플레이 -->
-    <section id="playScreen" class="hide">
-      <div class="topbar">
-        <span>문제 <b id="qnum">1</b>/10</span>
-        <span>점수 <b id="curScore">0</b></span>
+    <div class="hero">
+      <h1>뜻을 보고<br><span class="accent">사자성어</span>를.</h1>
+      <p>10문제, 문제당 5초. 얼마나 알고, 얼마나 빠른가. 계속 도전하세요.</p>
+    </div>
+
+    <div class="ident">
+      <label>닉네임 (순위표에 표시됩니다)</label>
+      <input id="nameInput" type="text" maxlength="12" placeholder="예: 영업3팀 김민수" autocomplete="off">
+      <div class="conn-state" id="connState">서버에 연결되면 자동으로 순위표에 기록됩니다</div>
+    </div>
+
+    <div class="spacer"></div>
+    <button class="cta" id="btnStart">시작하기</button>
+    <p class="hint">10문제 · 문제당 5초 · 점수로 순위 경쟁</p>
+
+    <div class="start-rank" id="startRank" style="display:none">
+      <div class="sr-head" id="srHead">🏆 현재 순위 <span class="sr-sub">TOP 5</span></div>
+      <div id="srRows"></div>
+    </div>
+  </section>
+
+  <!-- ============ PLAY ============ -->
+  <section class="screen" id="screen-play">
+    <div class="play-head">
+      <div class="qcount">문제 <b id="qnum">1</b>/10</div>
+      <div class="score-now">점수 <b class="num" id="curScore">0</b></div>
+    </div>
+    <div class="timerwrap"><div class="timerbar" id="timerbar"></div></div>
+    <div class="qlabel">이 뜻을 가진 사자성어는?</div>
+    <div class="qmean" id="qmean">—</div>
+    <div class="choices" id="choices"></div>
+  </section>
+
+  <!-- ============ RESULT ============ -->
+  <section class="screen" id="screen-result">
+    <div class="eyebrow">결과</div>
+    <div class="result-hero">
+      <div class="label" id="pctLabel">전 세계 기준</div>
+      <div class="pct num">상위 <span id="pctNum">0</span><span class="small">%</span></div>
+      <div class="verdict" id="verdict">—</div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat">
+        <div class="k">최종 점수</div>
+        <div class="v num" id="finalScore">0</div>
       </div>
-      <div class="timerwrap"><div class="timerbar" id="timerbar"></div></div>
-      <div class="qlabel">이 뜻을 가진 사자성어는?</div>
-      <div class="qmean" id="qmean">—</div>
-      <div class="choices" id="choices"></div>
-    </section>
+      <div class="stat">
+        <div class="k">정확도</div>
+        <div class="v num" id="accuracy">0<small>%</small></div>
+      </div>
+    </div>
 
-    <!-- 결과 -->
-    <section id="resultScreen" class="hide">
-      <div class="kicker">결과</div>
-      <div class="panel">
-        <div class="bigscore" id="finalScore">0</div>
-        <div class="scorelabel">최종 점수</div>
-        <div class="stats">
-          <div><b id="correctCnt">0</b>정답</div>
-          <div><b id="accuracy">0%</b>정확도</div>
-          <div><b id="gradeTxt">-</b>등급</div>
+    <div class="lb">
+      <div class="lb-head">
+        <div>
+          <div class="t" id="lbTitle">오늘의 순위</div>
+          <div class="src" id="lbSrc"></div>
         </div>
-        <div class="board" id="boardBox">
-          <h3>부서 순위 (사자성어)</h3>
-          <div id="boardList"></div>
-        </div>
-        <div class="netnote" id="netnote"></div>
-        <button class="btn" id="retryBtn">한 번 더</button>
-        <button class="btn ghost" id="homeBtn">🏠 처음으로</button>
+        <div class="league" id="leagueTag">🥈 실버 리그</div>
       </div>
-    </section>
+      <div id="lbRows"></div>
+    </div>
 
-  </div>
+    <div class="nudge" id="nudge">—</div>
+
+    <div class="result-actions">
+      <button class="cta" id="btnRetry">한 번 더</button>
+      <button class="cta ghost" id="btnHome">🏠 처음으로</button>
+    </div>
+  </section>
+
+</div>
 
 <script>
-/* ===== 사자성어 데이터 (자주 쓰는 것) ===== */
+/* ===================== 사자성어 데이터 ===================== */
 const IDIOMS = [
   {i:"유비무환", m:"미리 준비가 되어 있으면 근심할 것이 없음"},
   {i:"대기만성", m:"큰 그릇은 늦게 완성됨 · 크게 될 사람은 늦게 이루어짐"},
@@ -199,56 +266,150 @@ const IDIOMS = [
   {i:"타산지석", m:"남의 하찮은 언행도 자기 수양의 거울로 삼음"},
 ];
 
-const TOTAL=10, TIME_MS=5000;
-const NAME_KEY='memgame_name'; // 기억 게임과 닉네임 공유
+const TOTAL=10, TIME_MS=5000, NAME_KEY='memgame_name';
+const NICK_A=['고요한','빠른','강철','은빛','새벽','전설의','조용한','번개','심야','노련한','집중한','무심한'];
+const NICK_B=['여우','두뇌','기억','늑대','부엉이','사슴','매','거북','반달곰','수달','까치','고래'];
 
-/* ===== 서버 연동 ===== */
+/* ===================== 헬퍼 ===================== */
+const $=id=>document.getElementById(id);
+function esc(s){ return String(s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c])); }
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function show(name){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); $('screen-'+name).classList.add('active'); }
+function todaySeedStr(){ const d=new Date(); return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`; }
+function hashSeed(str){ let h=1779033703^str.length; for(let i=0;i<str.length;i++){ h=Math.imul(h^str.charCodeAt(i),3432918353); h=(h<<13)|(h>>>19);} return (h^(h>>>16))>>>0; }
+function mulberry32(a){ return function(){ a|=0;a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+const SEED_STR=todaySeedStr();
+
+/* ===================== 서버 (같은 네트워크) ===================== */
 const Net = {
   available:false,
   online(){ return location.protocol==='http:'||location.protocol==='https:'; },
-  async check(){
+  async detect(){
     if(!this.online()) return false;
-    try{ const r=await fetch('/api/scores?game=idiom',{cache:'no-store'});
-      if(r.ok){ await r.json(); this.available=true; } }catch(e){}
-    return this.available;
+    try{ const r=await fetch('/api/scores?game=idiom',{cache:'no-store'}); if(r.ok){ await r.json(); this.available=true; return true; } }catch(e){}
+    return false;
   },
   async submit(name,score){
-    if(!this.available) return null;
-    try{ const r=await fetch('/api/score',{method:'POST',headers:{'Content-Type':'application/json'},
+    const r=await fetch('/api/score',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({game:'idiom',name,score,age:0,mode:'normal'})});
-      if(r.ok) return await r.json(); }catch(e){}
-    return null;
+    if(!r.ok) throw new Error('submit failed'); return await r.json();
   },
-  async board(){
-    if(!this.available) return null;
-    try{ const r=await fetch('/api/scores?game=idiom',{cache:'no-store'});
-      if(r.ok) return await r.json(); }catch(e){}
-    return null;
+  async fetchAll(){
+    const r=await fetch('/api/scores?game=idiom',{cache:'no-store'});
+    if(!r.ok) throw new Error('fetch failed'); return await r.json();
   }
 };
 
-/* ===== 유틸 ===== */
-const $=id=>document.getElementById(id);
-function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
-function show(id){ ['startScreen','playScreen','resultScreen'].forEach(s=>$(s).classList.toggle('hide', s!==id)); }
+/* ===================== 가짜 순위표 (외부 · 혼자 모드) ===================== */
+function fakeLeaderboard(myScore){
+  const N = 30 + Math.floor(mulberry32(hashSeed('N'+SEED_STR))()*40); // 30~69명
+  function gauss(){ const u=Math.random()||1e-9, v=Math.random()||1e-9; return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+  // 사자성어 점수 분포: 평균 ~1150, 표준편차 ~430 (만점 약 2000)
+  let higher=0; for(let k=0;k<800;k++){ const s=1150+gauss()*430; if(s>myScore) higher++; }
+  const pctTop=Math.max(1, Math.min(99, Math.round(higher/800*100)));
+  const myRank=Math.max(1, Math.round(higher/800*N));
+  function nick(seed){ const rr=mulberry32(seed); return NICK_A[Math.floor(rr()*NICK_A.length)]+' '+NICK_B[Math.floor(rr()*NICK_B.length)]; }
+  const step=Math.max(15, Math.round(myScore*0.02)||30);
+  function scoreAt(rank){
+    if(rank===myRank) return myScore;
+    const base=myScore + (myRank-rank)*step;
+    const jitter=Math.round((mulberry32(hashSeed('s'+SEED_STR+rank))()-0.5)*step*0.6);
+    return Math.max(0, base+jitter);
+  }
+  const row=rank=>({rank, name: rank===myRank?'나 (내 점수)':nick(hashSeed('n'+SEED_STR+rank)), score: scoreAt(rank), me: rank===myRank});
+  const rows=[];
+  if(myRank<=3){ for(let rk=1; rk<=Math.max(3,myRank); rk++) rows.push(row(rk)); }
+  else{ for(let rk=1; rk<=3; rk++) rows.push(row(rk)); rows.push({gap:true}); for(let rk=myRank-1; rk<=myRank+1; rk++){ if(rk>3) rows.push(row(rk)); } }
+  return {rows, pctTop, myRank, N};
+}
 
-/* ===== 게임 상태 ===== */
+function renderGlobalBoard(score){
+  const lb=fakeLeaderboard(score);
+  $('pctLabel').textContent='전 세계 기준';
+  $('pctNum').textContent=lb.pctTop;
+  $('lbTitle').textContent='오늘의 순위'; $('lbSrc').textContent='';
+  const league = lb.pctTop<=5?'💎 다이아 리그':lb.pctTop<=20?'🥇 골드 리그':lb.pctTop<=50?'🥈 실버 리그':'🥉 브론즈 리그';
+  $('leagueTag').textContent=league;
+  let verdict;
+  if(lb.pctTop<=5) verdict='💎 최상위권. 사자성어 고수시네요.';
+  else if(lb.pctTop<=20) verdict='🔥 잘했어요. 상위권까진 한 끗 차이.';
+  else if(lb.pctTop<=50) verdict='평균 이상. 한 문제만 더 맞혔으면!';
+  else verdict='아깝다. 다음 판엔 충분히 만회할 수 있어요.';
+  $('verdict').textContent=verdict;
+  const wrap=$('lbRows'); wrap.innerHTML='';
+  lb.rows.forEach(r=>{
+    if(r.gap){ const g=document.createElement('div'); g.className='lb-gap'; g.textContent='· · ·'; wrap.appendChild(g); return; }
+    const div=document.createElement('div'); div.className='lb-row'+(r.me?' me':'');
+    div.innerHTML=`<div class="rk num">${r.rank}</div><div class="nm">${esc(r.name)}</div><div class="sc num">${(r.score||0).toLocaleString()}</div>`;
+    wrap.appendChild(div);
+  });
+  $('nudge').innerHTML='혼자 모드예요. 같은 네트워크의 부서 서버(<b>http://…:8000</b>)로 접속하면 실제 순위가 공유돼요.';
+}
+
+/* ===================== 부서 순위표 (서버 · 실제 공유) ===================== */
+function renderDeptBoard(records, myName){
+  const sorted=[...records].sort((a,b)=>(b.best||0)-(a.best||0));
+  const total=sorted.length||1;
+  const myRank=Math.max(1, sorted.findIndex(x=>x.id===myName)+1);
+  const me=sorted[myRank-1] || {id:myName,best:0};
+  const pct=Math.max(1, Math.round(myRank/total*100));
+  $('pctLabel').textContent='부서 내 기준';
+  $('pctNum').textContent=pct;
+  $('lbTitle').textContent='부서 순위표';
+  $('lbSrc').textContent=`사자성어 · ${total}명 참가`;
+  const league = pct<=10?'💎 다이아 리그':pct<=33?'🥇 골드 리그':pct<=66?'🥈 실버 리그':'🥉 브론즈 리그';
+  $('leagueTag').textContent=league;
+  let verdict;
+  if(myRank===1) verdict='🏆 부서 1위! 자리 지킬 수 있겠어요?';
+  else if(pct<=33) verdict='🔥 상위권. 1위까지 노려볼 만해요.';
+  else if(pct<=66) verdict='중위권. 한 판만 더 잘 풀면 올라갑니다.';
+  else verdict='아직 아래쪽. 최고 기록만 남으니 계속 갱신해보세요.';
+  $('verdict').textContent=verdict;
+  const wrap=$('lbRows'); wrap.innerHTML='';
+  const addRow=(rank,name,sc,isMe)=>{
+    const row=document.createElement('div'); row.className='lb-row'+(isMe?' me':'');
+    row.innerHTML=`<div class="rk num">${rank}</div><div class="nm">${esc(name)}</div><div class="sc num">${(sc||0).toLocaleString()}</div>`;
+    wrap.appendChild(row);
+  };
+  sorted.slice(0,8).forEach((r,i)=> addRow(i+1, r.id, r.best, r.id===myName));
+  if(myRank>8){ const g=document.createElement('div'); g.className='lb-gap'; g.textContent='· · ·'; wrap.appendChild(g); addRow(myRank, me.id, me.best, true); }
+  const above = myRank>1 ? sorted[myRank-2] : null;
+  $('nudge').innerHTML = above
+    ? `바로 위 <b>${esc(above.id)}</b>까지 <b>${((above.best||0)-(me.best||0)).toLocaleString()}점</b>. 한 판 더 가볼까요?`
+    : `현재 부서 <b>1위</b>입니다. 기록을 더 벌려두세요.`;
+}
+
+/* ===================== 시작 화면 실시간 TOP 5 ===================== */
+async function loadStartRank(){
+  if(!Net.available) return;
+  try{
+    const records=await Net.fetchAll();
+    const sorted=records.slice().sort((a,b)=>(b.best||0)-(a.best||0)).slice(0,5);
+    const rows=$('srRows'); rows.innerHTML='';
+    if(sorted.length===0){ rows.innerHTML='<div class="sr-empty">아직 기록이 없어요. 첫 주자가 되어보세요!</div>'; }
+    else{ sorted.forEach((r,i)=>{ const row=document.createElement('div'); row.className='sr-row';
+      row.innerHTML=`<span class="sr-rk">${i+1}</span><span class="sr-nm">${esc(r.id)}</span><span class="sr-sc num">${(r.best||0).toLocaleString()}</span>`;
+      rows.appendChild(row); }); }
+    $('startRank').style.display='block';
+  }catch(e){}
+}
+
+/* ===================== 게임 ===================== */
 let name='', questions=[], qIdx=0, score=0, correct=0, timer=null, tStart=0, answered=false;
 
 function buildQuestions(){
-  const picked=shuffle(IDIOMS).slice(0,TOTAL);
-  return picked.map(ans=>{
+  return shuffle(IDIOMS).slice(0,TOTAL).map(ans=>{
     const distractors=shuffle(IDIOMS.filter(x=>x.i!==ans.i)).slice(0,3);
-    const options=shuffle([ans, ...distractors]);
-    return { mean:ans.m, answer:ans.i, options:options.map(o=>o.i) };
+    return { mean:ans.m, answer:ans.i, options:shuffle([ans,...distractors]).map(o=>o.i) };
   });
 }
+function currentName(){ const v=($('nameInput').value||'').trim(); return v.slice(0,12) || '익명'; }
 
 function startGame(){
-  name=($('nick').value||'').trim().slice(0,12) || '익명';
+  name=currentName();
   try{ localStorage.setItem(NAME_KEY, name); }catch(e){}
   questions=buildQuestions(); qIdx=0; score=0; correct=0;
-  show('playScreen'); renderQuestion();
+  show('play'); renderQuestion();
 }
 
 function renderQuestion(){
@@ -258,113 +419,53 @@ function renderQuestion(){
   $('curScore').textContent=score;
   $('qmean').textContent=q.mean;
   const box=$('choices'); box.innerHTML='';
-  q.options.forEach(opt=>{
-    const b=document.createElement('button');
-    b.className='choice'; b.textContent=opt;
-    b.onclick=()=>choose(b, opt, q);
-    box.appendChild(b);
-  });
-  // 타이머
-  const bar=$('timerbar');
-  bar.style.transition='none'; bar.style.width='100%';
-  void bar.offsetWidth;
+  q.options.forEach(opt=>{ const b=document.createElement('button'); b.className='choice'; b.textContent=opt; b.onclick=()=>choose(b,opt,q); box.appendChild(b); });
+  const bar=$('timerbar'); bar.style.transition='none'; bar.style.width='100%'; void bar.offsetWidth;
   bar.style.transition=`width ${TIME_MS}ms linear`; bar.style.width='0%';
-  tStart=Date.now();
-  clearTimeout(timer);
-  timer=setTimeout(()=>choose(null,null,q), TIME_MS);
+  tStart=Date.now(); clearTimeout(timer); timer=setTimeout(()=>choose(null,null,q), TIME_MS);
 }
 
 function choose(btn, opt, q){
-  if(answered) return;
-  answered=true; clearTimeout(timer);
-  const bar=$('timerbar');
-  const elapsed=Date.now()-tStart;
-  bar.style.transition='none';
-  bar.style.width=getComputedStyle(bar).width; // 멈춤
-  const isRight = opt===q.answer;
-  const buttons=[...document.querySelectorAll('.choice')];
-  buttons.forEach(b=>{
-    b.disabled=true;
-    if(b.textContent===q.answer) b.classList.add('correct');
-    else if(b===btn) b.classList.add('wrong');
-  });
-  if(isRight){
-    correct++;
-    const remain=Math.max(0, TIME_MS-elapsed);
-    const speedBonus=Math.round((remain/TIME_MS)*100); // 0~100
-    score += 100 + speedBonus;
-    $('curScore').textContent=score;
-  }
-  setTimeout(next, isRight?650:1050);
-}
-
-function next(){
-  qIdx++;
-  if(qIdx>=TOTAL) finish();
-  else renderQuestion();
-}
-
-function grade(acc){
-  if(acc>=100) return '완벽';
-  if(acc>=90) return '학자';
-  if(acc>=70) return '수재';
-  if(acc>=50) return '평범';
-  if(acc>=30) return '분발';
-  return '재도전';
+  if(answered) return; answered=true; clearTimeout(timer);
+  const bar=$('timerbar'); bar.style.transition='none'; bar.style.width=getComputedStyle(bar).width;
+  const elapsed=Date.now()-tStart; const isRight = opt===q.answer;
+  [...document.querySelectorAll('.choice')].forEach(b=>{ b.disabled=true;
+    if(b.textContent===q.answer) b.classList.add('correct'); else if(b===btn) b.classList.add('wrong'); });
+  if(isRight){ correct++; const remain=Math.max(0,TIME_MS-elapsed); score += 100 + Math.round((remain/TIME_MS)*100); $('curScore').textContent=score; }
+  setTimeout(()=>{ qIdx++; (qIdx>=TOTAL)?finish():renderQuestion(); }, isRight?650:1050);
 }
 
 async function finish(){
   const acc=Math.round((correct/TOTAL)*100);
   $('finalScore').textContent=score.toLocaleString();
-  $('correctCnt').textContent=correct;
-  $('accuracy').textContent=acc+'%';
-  $('gradeTxt').textContent=grade(acc);
-  show('resultScreen');
-
-  // 순위 저장/조회
-  const note=$('netnote'); const box=$('boardBox');
-  if(!Net.online()){
-    box.classList.add('hide');
-    note.textContent='혼자 모드예요. 순위를 겨루려면 부서 서버 주소(http://…:8000)로 접속하세요.';
-    return;
+  $('accuracy').innerHTML=acc+'<small>%</small>';
+  show('result');
+  // 순위표: 서버 연결이면 실제 공유, 아니면 가짜(전 세계 기준)
+  if(Net.online()){
+    if(!Net.available) await Net.detect();
+    if(Net.available){
+      try{ const records=await Net.submit(name, score); renderDeptBoard(records, name); return; }
+      catch(e){ try{ renderDeptBoard(await Net.fetchAll(), name); return; }catch(e2){} }
+    }
   }
-  await Net.check();
-  if(!Net.available){
-    box.classList.add('hide');
-    note.textContent='순위 서버에 연결되지 않았어요. 기록이 저장되지 않았습니다.';
-    return;
-  }
-  box.classList.remove('hide');
-  let records = await Net.submit(name, score);
-  if(!records) records = await Net.board();
-  renderBoard(records||[]);
-  note.textContent='기록이 부서 순위표에 저장됐어요.';
+  renderGlobalBoard(score); // 외부/혼자 모드
 }
 
-function renderBoard(records){
-  const list=$('boardList');
-  const sorted=records.slice().sort((a,b)=>(b.best||0)-(a.best||0)).slice(0,8);
-  if(!sorted.length){ list.innerHTML='<div class="netnote">아직 기록이 없어요. 첫 주자가 되어보세요!</div>'; return; }
-  list.innerHTML='';
-  sorted.forEach((r,i)=>{
-    const div=document.createElement('div');
-    div.className='row'+(r.id===name?' me':'');
-    div.innerHTML=`<span class="rank">${i+1}</span>`+
-      `<span class="rname">${escapeHtml(r.id)}</span>`+
-      `<span class="rscore">${(r.best||0).toLocaleString()}</span>`;
-    list.appendChild(div);
-  });
-}
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-
-/* ===== 초기화 ===== */
+/* ===================== 초기화 ===================== */
 (function init(){
-  try{ const saved=localStorage.getItem(NAME_KEY); if(saved) $('nick').value=saved; }catch(e){}
-  Net.check();
-  $('startBtn').onclick=startGame;
-  $('nick').addEventListener('keydown',e=>{ if(e.key==='Enter') startGame(); });
-  $('retryBtn').onclick=startGame;
-  $('homeBtn').onclick=()=>{ show('startScreen'); };
+  const d=new Date(); const days=['일','월','화','수','목','금','토'];
+  $('dateTag').textContent=`${d.getMonth()+1}월 ${d.getDate()}일 (${days[d.getDay()]})`;
+  try{ const saved=localStorage.getItem(NAME_KEY); if(saved) $('nameInput').value=saved; }catch(e){}
+  const cs=$('connState');
+  Net.detect().then(ok=>{
+    if(ok){ cs.className='conn-state ok'; cs.textContent='✓ 부서 서버에 연결됨 · 기록이 저장됩니다'; loadStartRank(); }
+    else if(Net.online()){ cs.className='conn-state'; cs.textContent='순위 서버에 연결 안 됨 · 혼자 모드 (외부 순위만 표시)'; }
+    else{ cs.className='conn-state'; cs.textContent='혼자 모드 (파일로 열림) · 순위 저장은 서버 접속 필요'; }
+  });
+  $('btnStart').onclick=startGame;
+  $('nameInput').addEventListener('keydown',e=>{ if(e.key==='Enter') startGame(); });
+  $('btnRetry').onclick=startGame;
+  $('btnHome').onclick=()=>{ show('start'); };
 })();
 </script>
 </body>
