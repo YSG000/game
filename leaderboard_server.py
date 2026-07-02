@@ -29,16 +29,18 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_FILE = os.environ.get("SCORES_FILE", os.path.join(BASE_DIR, "scores.json"))
 
 # 경로 → 파일 매핑
-MEMORY_FILE = "SHdev.html"   # 오늘의 기억 게임 (예전 memory_daily_prototype.html)
+MEMORY_FILE = "index.html"   # 오늘의 기억 게임 (GitHub Pages 진입점 겸용)
+IDIOM_FILE = "game.html"     # 사자성어 스피드퀴즈
 PAGES = {
     "/": "hub.html",
     "/hub": "hub.html",
     "/memory": MEMORY_FILE,
-    "/SHdev.html": MEMORY_FILE,
-    "/memory_daily_prototype.html": MEMORY_FILE,  # 옛 이름 하위호환
     "/index.html": MEMORY_FILE,
-    "/idiom": "idiom.html",
-    "/idiom.html": "idiom.html",
+    "/memory_daily_prototype.html": MEMORY_FILE,  # 옛 이름 하위호환
+    "/SHdev.html": MEMORY_FILE,                    # 옛 이름 하위호환
+    "/idiom": IDIOM_FILE,
+    "/game.html": IDIOM_FILE,
+    "/idiom.html": IDIOM_FILE,                     # 옛 이름 하위호환
 }
 
 GAMES = ("memory", "idiom")
