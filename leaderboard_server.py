@@ -29,12 +29,14 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_FILE = os.environ.get("SCORES_FILE", os.path.join(BASE_DIR, "scores.json"))
 
 # 경로 → 파일 매핑
+MEMORY_FILE = "SHdev.html"   # 오늘의 기억 게임 (예전 memory_daily_prototype.html)
 PAGES = {
     "/": "hub.html",
     "/hub": "hub.html",
-    "/memory": "memory_daily_prototype.html",
-    "/memory_daily_prototype.html": "memory_daily_prototype.html",
-    "/index.html": "memory_daily_prototype.html",  # 하위호환
+    "/memory": MEMORY_FILE,
+    "/SHdev.html": MEMORY_FILE,
+    "/memory_daily_prototype.html": MEMORY_FILE,  # 옛 이름 하위호환
+    "/index.html": MEMORY_FILE,
     "/idiom": "idiom.html",
     "/idiom.html": "idiom.html",
 }
@@ -116,10 +118,12 @@ class Handler(BaseHTTPRequestHandler):
             with open(path, "rb") as f:
                 body = f.read()
         except FileNotFoundError:
+            msg = f"{filename} 을(를) 찾을 수 없습니다. 같은 폴더에 두세요.".encode("utf-8")
             self.send_response(500)
+            self.send_header("Content-Type", "text/plain; charset=utf-8")
+            self.send_header("Content-Length", str(len(msg)))
             self.end_headers()
-            self.wfile.write(f"{filename} 을(를) 찾을 수 없습니다. 같은 폴더에 두세요."
-                             .encode("utf-8"))
+            self.wfile.write(msg)
             return
         self.send_response(200)
         self.send_header("Content-Type", "text/html; charset=utf-8")
