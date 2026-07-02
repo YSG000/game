@@ -54,16 +54,16 @@
   .streak{display:flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--tile-edge);
     padding:7px 11px;border-radius:99px;font-size:13px;font-weight:600;}
   .streak b{color:var(--amber);}
-  .hero{margin-top:54px;}
-  .hero h1{font-size:42px;line-height:1.04;font-weight:800;letter-spacing:-.02em;}
-  .hero p{margin-top:16px;color:var(--muted);font-size:15px;line-height:1.6;max-width:300px;}
+  .hero{margin-top:20px;}
+  .hero h1{font-size:36px;line-height:1.05;font-weight:800;letter-spacing:-.02em;}
+  .hero p{margin-top:12px;color:var(--muted);font-size:14px;line-height:1.55;max-width:300px;}
   .hero .accent{color:var(--amber);}
   .preview-grid{
-    margin:40px auto 0;display:grid;grid-template-columns:repeat(3,1fr);gap:9px;width:180px;
+    margin:18px auto 0;display:grid;grid-template-columns:repeat(3,1fr);gap:9px;width:148px;
   }
   .preview-grid div{aspect-ratio:1;border-radius:11px;background:var(--tile);border:1px solid var(--tile-edge);}
   .preview-grid div.on{background:var(--amber);box-shadow:0 0 22px -4px var(--amber);border-color:var(--amber);}
-  .spacer{flex:1;}
+  .spacer{height:14px;}
   .cta{
     width:100%;background:var(--amber);color:#10202a;font-size:17px;font-weight:700;
     padding:17px;border-radius:15px;letter-spacing:-.01em;transition:transform .12s;
@@ -108,7 +108,7 @@
   .restart-btn{background:transparent;border:1px solid var(--tile-edge);color:var(--muted);font-family:inherit;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:8px;cursor:pointer;transition:transform .12s;}
   .restart-btn:active{transform:scale(.95);}
   .sel-count{text-align:right;font-size:14px;color:var(--muted);margin-bottom:0;}
-  .mode-seg{display:flex;background:var(--panel);border:1px solid var(--tile-edge);border-radius:11px;padding:4px;gap:4px;margin-top:18px;}
+  .mode-seg{display:flex;background:var(--panel);border:1px solid var(--tile-edge);border-radius:11px;padding:4px;gap:4px;margin-top:2px;}
   .seg-btn{flex:1;background:transparent;border:none;color:var(--muted);font-family:inherit;font-size:14px;font-weight:700;padding:9px;border-radius:8px;cursor:pointer;transition:all .15s;}
   .seg-btn.active{background:var(--amber);color:#10202a;}
   .sel-count b{color:var(--text);}
@@ -145,7 +145,11 @@
   .result-actions{margin-top:18px;display:flex;flex-direction:column;gap:10px;}
 
   /* ---- identity + shared board ---- */
-  .ident{margin-top:22px;background:var(--panel);border:1px solid var(--tile-edge);border-radius:14px;padding:14px;}
+  .ident{margin-top:16px;background:var(--panel);border:1px solid var(--tile-edge);border-radius:14px;padding:14px;}
+  .my-best{margin-top:10px;display:flex;justify-content:space-between;align-items:center;
+    background:var(--panel-2);border:1px solid var(--amber-dim);border-radius:12px;padding:13px 16px;font-size:14px;}
+  .my-best .k{color:var(--muted);font-weight:600;}
+  .my-best .v{color:var(--amber);font-weight:800;}
   .ident label{display:block;font-size:12px;color:var(--muted);margin-bottom:7px;letter-spacing:.02em;}
   .ident input{width:100%;background:var(--canvas);border:1px solid var(--tile-edge);border-radius:10px;
     color:var(--text);font-family:inherit;font-size:15px;padding:11px 12px;outline:none;}
@@ -190,14 +194,6 @@
       <a href="index.html" class="on">🧠 오늘의 기억</a>
       <a href="idiom.html">📜 사자성어 스피드퀴즈</a>
     </nav>
-    <div class="start-top">
-      <div>
-        <div class="eyebrow">오늘의 기억</div>
-        <div class="date-tag" id="dateTag">—</div>
-      </div>
-      <div class="streak">🔥 <b id="streakNum">7</b>일 연속</div>
-    </div>
-
     <div class="mode-seg" id="modeSeg">
       <button class="seg-btn active" data-mode="normal">일반</button>
       <button class="seg-btn" data-mode="hard">하드 🔥</button>
@@ -222,8 +218,12 @@
     <p class="hint" id="hint">약 2분 · 할 때마다 새 패턴 · 점수로 순위 경쟁</p>
 
     <div class="start-rank" id="startRank" style="display:none">
-      <div class="sr-head" id="srHead">🏆 현재 순위 <span class="sr-sub">TOP 5</span></div>
+      <div class="sr-head" id="srHead">🏆 명예의 전당 <span class="sr-sub">TOP 5</span></div>
       <div id="srRows"></div>
+    </div>
+    <div class="my-best" id="myBest" style="display:none">
+      <span class="k">🙋 내 최고 기록</span>
+      <span class="v num" id="myBestVal">-</span>
     </div>
   </section>
 
@@ -374,9 +374,6 @@ function show(name){
 
 /* ===================== 시작 화면 ===================== */
 (function initStart(){
-  const d = new Date();
-  const days=['일','월','화','수','목','금','토'];
-  $('dateTag').textContent = `${d.getMonth()+1}월 ${d.getDate()}일 (${days[d.getDay()]})`;
   // 미리보기 그리드: 실제 게임 패턴과 무관한 장식용 랜덤 (힌트 방지)
   const pg = $('previewGrid'); pg.innerHTML='';
   const deco = pickNRandom(9, 3);
@@ -734,25 +731,38 @@ const Net = {
   }
 };
 
-/* ===================== 시작 화면 실시간 Top 5 ===================== */
+/* ===================== 명예의 전당 + 내 최고 기록 ===================== */
+function localBestScore(name){
+  try{ const arr=JSON.parse(localStorage.getItem('memgame_local')||'[]');
+    return arr.filter(x=>x.name===name).reduce((m,x)=>Math.max(m,x.score||0),0);
+  }catch(e){ return 0; }
+}
 async function loadStartRank(){
-  if(!Net.available) return;                 // 서버 연결됐을 때만 표시
-  try{
-    const records=await Net.fetchAll();
-    const sorted=records.filter(r=>(r.mode||'normal')===MODE).sort((a,b)=>(b.best||0)-(a.best||0)).slice(0,5);
-    $('srHead').innerHTML=`🏆 현재 순위 <span class="sr-sub">${MODES[MODE].label} TOP 5</span>`;
-    const rows=$('srRows'); rows.innerHTML='';
-    if(sorted.length===0){
-      rows.innerHTML='<div class="sr-empty">아직 기록이 없어요. 첫 주자가 되어보세요!</div>';
-    }else{
-      sorted.forEach((r,i)=>{
-        const row=document.createElement('div'); row.className='sr-row';
-        row.innerHTML=`<span class="sr-rk">${i+1}</span><span class="sr-nm">${esc(r.id)}</span><span class="sr-sc">${(r.best||0).toLocaleString()}</span>`;
-        rows.appendChild(row);
-      });
-    }
-    $('startRank').style.display='block';
-  }catch(e){}
+  const myName=Persist.currentName();
+  let myBest=localBestScore(myName);
+  $('srHead').innerHTML=`🏆 명예의 전당 <span class="sr-sub">${MODES[MODE].label} TOP 5</span>`;
+  const rows=$('srRows'); rows.innerHTML='';
+  if(Net.available){
+    try{
+      const records=await Net.fetchAll();
+      const mode=records.filter(r=>(r.mode||'normal')===MODE).sort((a,b)=>(b.best||0)-(a.best||0));
+      if(mode.length===0){
+        rows.innerHTML='<div class="sr-empty">아직 기록이 없어요. 첫 주자가 되어보세요!</div>';
+      }else{
+        mode.slice(0,5).forEach((r,i)=>{
+          const row=document.createElement('div'); row.className='sr-row';
+          row.innerHTML=`<span class="sr-rk">${i+1}</span><span class="sr-nm">${esc(r.id)}</span><span class="sr-sc">${(r.best||0).toLocaleString()}</span>`;
+          rows.appendChild(row);
+        });
+      }
+      const myRec=mode.find(r=>r.id===myName); if(myRec) myBest=Math.max(myBest, myRec.best||0);
+    }catch(e){ rows.innerHTML='<div class="sr-empty">순위를 불러오지 못했어요.</div>'; }
+  }else{
+    rows.innerHTML='<div class="sr-empty">부서 서버에 연결하면 명예의 전당이 표시됩니다</div>';
+  }
+  $('startRank').style.display='block';
+  const mb=$('myBest'), mbv=$('myBestVal');
+  if(mb&&mbv){ mb.style.display='flex'; mbv.textContent = myBest>0 ? myBest.toLocaleString()+'점' : '아직 기록 없음'; }
 }
 
 /* ===================== 결과 화면 ===================== */
@@ -853,8 +863,8 @@ $('nameInput').addEventListener('input', e=>Persist.saveName(e.target.value));
 (async function initServerMode(){
   if(await Net.detect()){
     Persist.setState('✓ 부서 서버에 연결됨 · 기록이 자동으로 저장·공유됩니다','ok');
-    loadStartRank();   // 시작 화면 실시간 Top 5
   }
+  loadStartRank();   // 명예의 전당 + 내 최고 기록 (서버/오프라인 모두)
 })();
 </script>
 </body>

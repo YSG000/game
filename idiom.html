@@ -44,17 +44,21 @@
   .date-tag{font-size:13px;color:var(--muted);margin-top:4px;}
   .streak{display:flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--tile-edge);
     padding:7px 11px;border-radius:99px;font-size:13px;font-weight:600;}
-  .hero{margin-top:48px;}
-  .hero h1{font-size:42px;line-height:1.04;font-weight:800;letter-spacing:-.02em;}
-  .hero p{margin-top:16px;color:var(--muted);font-size:15px;line-height:1.6;max-width:320px;}
-  .ident{margin-top:22px;background:var(--panel);border:1px solid var(--tile-edge);border-radius:14px;padding:14px;}
+  .hero{margin-top:18px;}
+  .hero h1{font-size:36px;line-height:1.05;font-weight:800;letter-spacing:-.02em;}
+  .hero p{margin-top:12px;color:var(--muted);font-size:14px;line-height:1.55;max-width:320px;}
+  .ident{margin-top:16px;background:var(--panel);border:1px solid var(--tile-edge);border-radius:14px;padding:14px;}
+  .my-best{margin-top:10px;display:flex;justify-content:space-between;align-items:center;
+    background:var(--panel-2);border:1px solid var(--amber-dim);border-radius:12px;padding:13px 16px;font-size:14px;}
+  .my-best .k{color:var(--muted);font-weight:600;}
+  .my-best .v{color:var(--amber);font-weight:800;}
   .ident label{display:block;font-size:12px;color:var(--muted);margin-bottom:7px;letter-spacing:.02em;}
   .ident input{width:100%;background:var(--canvas);border:1px solid var(--tile-edge);border-radius:10px;
     color:var(--text);font-family:inherit;font-size:15px;padding:11px 12px;outline:none;text-align:left;}
   .ident input:focus{border-color:var(--amber-dim);}
   .conn-state{font-size:12px;margin-top:9px;line-height:1.5;color:var(--muted-2);}
   .conn-state.ok{color:var(--mint);} .conn-state.warn{color:var(--coral);}
-  .spacer{flex:1;min-height:20px;}
+  .spacer{height:14px;}
   .cta{width:100%;background:var(--amber);color:#10202a;font-size:17px;font-weight:700;
     padding:17px;border-radius:15px;letter-spacing:-.01em;transition:transform .12s;border:none;}
   .cta:active{transform:scale(.98);}
@@ -124,14 +128,6 @@
       <a href="index.html">🧠 오늘의 기억</a>
       <a href="idiom.html" class="on">📜 사자성어 스피드퀴즈</a>
     </nav>
-    <div class="start-top">
-      <div>
-        <div class="eyebrow">사자성어 스피드퀴즈</div>
-        <div class="date-tag" id="dateTag">—</div>
-      </div>
-      <div class="streak">📜 <b>10</b>문제</div>
-    </div>
-
     <div class="hero">
       <h1>뜻을 보고<br><span class="accent">사자성어</span>를.</h1>
       <p>10문제, 문제당 5초. 얼마나 알고, 얼마나 빠른가. 계속 도전하세요.</p>
@@ -148,8 +144,12 @@
     <p class="hint">10문제 · 문제당 5초 · 점수로 순위 경쟁</p>
 
     <div class="start-rank" id="startRank" style="display:none">
-      <div class="sr-head" id="srHead">🏆 현재 순위 <span class="sr-sub">TOP 5</span></div>
+      <div class="sr-head" id="srHead">🏆 명예의 전당 <span class="sr-sub">TOP 5</span></div>
       <div id="srRows"></div>
+    </div>
+    <div class="my-best" id="myBest" style="display:none">
+      <span class="k">🙋 내 최고 기록</span>
+      <span class="v num" id="myBestVal">-</span>
     </div>
   </section>
 
@@ -379,19 +379,35 @@ function renderDeptBoard(records, myName){
     : `현재 부서 <b>1위</b>입니다. 기록을 더 벌려두세요.`;
 }
 
-/* ===================== 시작 화면 실시간 TOP 5 ===================== */
+/* ===================== 명예의 전당 + 내 최고 기록 ===================== */
+function localBestScore(name){
+  try{ const o=JSON.parse(localStorage.getItem('idiom_best')||'{}'); return o[name]||0; }catch(e){ return 0; }
+}
+function saveLocalBest(name, score){
+  try{ const o=JSON.parse(localStorage.getItem('idiom_best')||'{}');
+    if(score>(o[name]||0)){ o[name]=score; localStorage.setItem('idiom_best', JSON.stringify(o)); } }catch(e){}
+}
 async function loadStartRank(){
-  if(!Net.available) return;
-  try{
-    const records=await Net.fetchAll();
-    const sorted=records.slice().sort((a,b)=>(b.best||0)-(a.best||0)).slice(0,5);
-    const rows=$('srRows'); rows.innerHTML='';
-    if(sorted.length===0){ rows.innerHTML='<div class="sr-empty">아직 기록이 없어요. 첫 주자가 되어보세요!</div>'; }
-    else{ sorted.forEach((r,i)=>{ const row=document.createElement('div'); row.className='sr-row';
-      row.innerHTML=`<span class="sr-rk">${i+1}</span><span class="sr-nm">${esc(r.id)}</span><span class="sr-sc num">${(r.best||0).toLocaleString()}</span>`;
-      rows.appendChild(row); }); }
-    $('startRank').style.display='block';
-  }catch(e){}
+  const myName=currentName();
+  let myBest=localBestScore(myName);
+  $('srHead').innerHTML='🏆 명예의 전당 <span class="sr-sub">TOP 5</span>';
+  const rows=$('srRows'); rows.innerHTML='';
+  if(Net.available){
+    try{
+      const records=await Net.fetchAll();
+      const sorted=records.slice().sort((a,b)=>(b.best||0)-(a.best||0));
+      if(sorted.length===0){ rows.innerHTML='<div class="sr-empty">아직 기록이 없어요. 첫 주자가 되어보세요!</div>'; }
+      else{ sorted.slice(0,5).forEach((r,i)=>{ const row=document.createElement('div'); row.className='sr-row';
+        row.innerHTML=`<span class="sr-rk">${i+1}</span><span class="sr-nm">${esc(r.id)}</span><span class="sr-sc">${(r.best||0).toLocaleString()}</span>`;
+        rows.appendChild(row); }); }
+      const myRec=sorted.find(r=>r.id===myName); if(myRec) myBest=Math.max(myBest, myRec.best||0);
+    }catch(e){ rows.innerHTML='<div class="sr-empty">순위를 불러오지 못했어요.</div>'; }
+  }else{
+    rows.innerHTML='<div class="sr-empty">부서 서버에 연결하면 명예의 전당이 표시됩니다</div>';
+  }
+  $('startRank').style.display='block';
+  const mb=$('myBest'), mbv=$('myBestVal');
+  if(mb&&mbv){ mb.style.display='flex'; mbv.textContent = myBest>0 ? myBest.toLocaleString()+'점' : '아직 기록 없음'; }
 }
 
 /* ===================== 게임 ===================== */
@@ -437,6 +453,7 @@ function choose(btn, opt, q){
 
 async function finish(){
   const acc=Math.round((correct/TOTAL)*100);
+  saveLocalBest(name, score);
   $('finalScore').textContent=score.toLocaleString();
   $('accuracy').innerHTML=acc+'<small>%</small>';
   show('result');
@@ -453,14 +470,13 @@ async function finish(){
 
 /* ===================== 초기화 ===================== */
 (function init(){
-  const d=new Date(); const days=['일','월','화','수','목','금','토'];
-  $('dateTag').textContent=`${d.getMonth()+1}월 ${d.getDate()}일 (${days[d.getDay()]})`;
   try{ const saved=localStorage.getItem(NAME_KEY); if(saved) $('nameInput').value=saved; }catch(e){}
   const cs=$('connState');
   Net.detect().then(ok=>{
-    if(ok){ cs.className='conn-state ok'; cs.textContent='✓ 부서 서버에 연결됨 · 기록이 저장됩니다'; loadStartRank(); }
+    if(ok){ cs.className='conn-state ok'; cs.textContent='✓ 부서 서버에 연결됨 · 기록이 저장됩니다'; }
     else if(Net.online()){ cs.className='conn-state'; cs.textContent='순위 서버에 연결 안 됨 · 혼자 모드 (외부 순위만 표시)'; }
     else{ cs.className='conn-state'; cs.textContent='혼자 모드 (파일로 열림) · 순위 저장은 서버 접속 필요'; }
+    loadStartRank();   // 명예의 전당 + 내 최고 기록 (서버/오프라인 모두)
   });
   $('btnStart').onclick=startGame;
   $('nameInput').addEventListener('keydown',e=>{ if(e.key==='Enter') startGame(); });
