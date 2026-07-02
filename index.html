@@ -290,8 +290,6 @@
 
     <div class="result-actions">
       <button class="cta" id="btnHome">🏠 처음으로</button>
-      <button class="cta ad" id="btnRetry">광고 보고 마지막 라운드 재도전 <span class="tag">+점수</span></button>
-      <button class="cta ad" id="btnAnalysis">광고 보고 기억력 정밀 분석 <span class="tag">상세</span></button>
       <button class="cta ghost" id="btnShare">결과 공유하기</button>
     </div>
   </section>
@@ -710,23 +708,27 @@ function renderDeptBoard(records, myName, srcLabel){
     : `현재 부서 <b>1위</b>입니다. 누가 도전할지 모르니 기록을 더 벌려두세요.`;
 }
 
-/* ===================== 부서 서버 (같은 네트워크) ===================== */
+/* ===================== 부서 서버 (같은 네트워크) =====================
+   서버가 띄워주면 상대주소, 파일(file://)로 열리면 아래 SERVER 주소로 접속.
+   → Z 공유폴더 등에 파일을 두고 열어도 회원님 PC 서버로 순위가 저장됨.
+   ⚠ 회원님 PC의 IP가 바뀌면 아래 SERVER 값을 수정하세요. */
+const SERVER='http://192.168.20.64:8000';
+const API=(location.protocol==='http:'||location.protocol==='https:')?'':SERVER;
 const Net = {
   available:false,
   async detect(){
-    if(location.protocol!=='http:' && location.protocol!=='https:') return false;
-    try{ const r=await fetch('/api/scores',{cache:'no-store'}); if(r.ok){ await r.json(); this.available=true; return true; } }
+    try{ const r=await fetch(API+'/api/scores',{cache:'no-store'}); if(r.ok){ await r.json(); this.available=true; return true; } }
     catch(e){}
     return false;
   },
   async submit(name, score, age, mode){
-    const r=await fetch('/api/score',{method:'POST',headers:{'Content-Type':'application/json'},
+    const r=await fetch(API+'/api/score',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({name,score,age,mode:mode||'normal'})});
     if(!r.ok) throw new Error('submit failed');
     return await r.json();
   },
   async fetchAll(){
-    const r=await fetch('/api/scores',{cache:'no-store'});
+    const r=await fetch(API+'/api/scores',{cache:'no-store'});
     if(!r.ok) throw new Error('fetch failed');
     return await r.json();
   }
@@ -843,13 +845,7 @@ async function showResult(){
   }
 }
 
-/* ===================== 광고/공유 더미 ===================== */
-$('btnRetry').onclick=()=>{
-  // 데모: 마지막 라운드만 재도전 (광고 자리)
-  alert('[광고 자리]\n\n실제 앱에서는 보상형 전면 광고가 재생된 뒤,\n마지막(가장 어려운) 라운드만 다시 풀어 점수를 만회합니다.');
-  curRound=ROUNDS.length-1; totalScore-=lastRoundScore; show('play'); startRound();
-};
-$('btnAnalysis').onclick=()=>alert('[광고 자리]\n\n광고 시청 후: 라운드별 정답/오답, 평균 반응속도,\n같은 연령대 대비 위치 등 "정밀 분석" 화면을 보여줍니다.');
+/* ===================== 공유 ===================== */
 $('btnHome').onclick=()=>{ clearTimeout(timerId); answering=false; show('start'); loadStartRank(); };
 $('btnShare').onclick=()=>{
   const pct=$('pctNum').textContent;

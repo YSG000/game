@@ -282,21 +282,23 @@ function mulberry32(a){ return function(){ a|=0;a=a+0x6D2B79F5|0; let t=Math.imu
 const SEED_STR=todaySeedStr();
 
 /* ===================== 서버 (같은 네트워크) ===================== */
+/* 서버가 띄우면 상대주소, 파일(file://)로 열리면 아래 SERVER로 접속.
+   ⚠ 내 PC IP가 바뀌면 SERVER 값을 수정하세요. */
+const SERVER='http://192.168.20.64:8000';
+const API=(location.protocol==='http:'||location.protocol==='https:')?'':SERVER;
 const Net = {
   available:false,
-  online(){ return location.protocol==='http:'||location.protocol==='https:'; },
   async detect(){
-    if(!this.online()) return false;
-    try{ const r=await fetch('/api/scores?game=idiom',{cache:'no-store'}); if(r.ok){ await r.json(); this.available=true; return true; } }catch(e){}
+    try{ const r=await fetch(API+'/api/scores?game=idiom',{cache:'no-store'}); if(r.ok){ await r.json(); this.available=true; return true; } }catch(e){}
     return false;
   },
   async submit(name,score){
-    const r=await fetch('/api/score',{method:'POST',headers:{'Content-Type':'application/json'},
+    const r=await fetch(API+'/api/score',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({game:'idiom',name,score,age:0,mode:'normal'})});
     if(!r.ok) throw new Error('submit failed'); return await r.json();
   },
   async fetchAll(){
-    const r=await fetch('/api/scores?game=idiom',{cache:'no-store'});
+    const r=await fetch(API+'/api/scores?game=idiom',{cache:'no-store'});
     if(!r.ok) throw new Error('fetch failed'); return await r.json();
   }
 };
@@ -458,13 +460,11 @@ async function finish(){
   $('finalScore').textContent=score.toLocaleString();
   $('accuracy').innerHTML=acc+'<small>%</small>';
   show('result');
-  // 순위표: 서버 연결이면 실제 공유, 아니면 가짜(전 세계 기준)
-  if(Net.online()){
-    if(!Net.available) await Net.detect();
-    if(Net.available){
-      try{ const records=await Net.submit(name, score); renderDeptBoard(records, name); return; }
-      catch(e){ try{ renderDeptBoard(await Net.fetchAll(), name); return; }catch(e2){} }
-    }
+  // 순위표: 서버 연결되면 실제 공유, 아니면 가짜(전 세계 기준)
+  if(!Net.available) await Net.detect();
+  if(Net.available){
+    try{ const records=await Net.submit(name, score); renderDeptBoard(records, name); return; }
+    catch(e){ try{ renderDeptBoard(await Net.fetchAll(), name); return; }catch(e2){} }
   }
   renderGlobalBoard(score); // 외부/혼자 모드
 }
@@ -475,8 +475,7 @@ async function finish(){
   const cs=$('connState');
   Net.detect().then(ok=>{
     if(ok){ cs.className='conn-state ok'; cs.textContent='✓ 부서 서버에 연결됨 · 기록이 저장됩니다'; }
-    else if(Net.online()){ cs.className='conn-state'; cs.textContent='순위 서버에 연결 안 됨 · 혼자 모드 (외부 순위만 표시)'; }
-    else{ cs.className='conn-state'; cs.textContent='혼자 모드 (파일로 열림) · 순위 저장은 서버 접속 필요'; }
+    else{ cs.className='conn-state'; cs.textContent='순위 서버에 연결 안 됨 · 혼자 모드 (외부 순위만 표시)'; }
     loadStartRank();   // 명예의 전당 + 내 최고 기록 (서버/오프라인 모두)
   });
   $('btnStart').onclick=startGame;

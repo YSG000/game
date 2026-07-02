@@ -93,11 +93,11 @@
 <script>
   (async function(){
     const dot=document.getElementById('dot'), msg=document.getElementById('netmsg');
-    if(location.protocol!=='http:'&&location.protocol!=='https:'){
-      msg.textContent='혼자 모드 (파일로 열림 · 순위 저장 안 됨)'; return;
-    }
+    // 서버가 띄우면 상대주소, 파일(file://)로 열리면 아래 SERVER로 접속
+    const SERVER='http://192.168.20.64:8000';
+    const API=(location.protocol==='http:'||location.protocol==='https:')?'':SERVER;
     try{
-      const r=await fetch('/api/scores?game=memory',{cache:'no-store'});
+      const r=await fetch(API+'/api/scores?game=memory',{cache:'no-store'});
       if(r.ok){ await r.json(); dot.className='dot on';
         msg.textContent='부서 순위 서버에 연결됨 · 기록이 저장됩니다'; return; }
     }catch(e){}
