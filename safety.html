@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>사자성어 스피드퀴즈</title>
+<title>안전 찍GO!</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap">
@@ -30,7 +30,7 @@
   .screen{display:none; flex:1; flex-direction:column;}
   .screen.active{display:flex; animation:fade .35s ease;}
 
-  /* 게임 전환 탭 */
+  /* 게임 전환 탭 (3개) */
   .game-switch{display:flex;gap:6px;margin-bottom:16px;}
   .game-switch a{flex:1;text-align:center;text-decoration:none;padding:10px 5px;border-radius:11px;
     font-weight:800;font-size:12.5px;border:1px solid var(--tile-edge);color:var(--muted);white-space:nowrap;
@@ -40,10 +40,6 @@
 
   /* 시작 */
   .eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--amber-dim);font-weight:600;}
-  .start-top{display:flex;justify-content:space-between;align-items:flex-start;}
-  .date-tag{font-size:13px;color:var(--muted);margin-top:4px;}
-  .streak{display:flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--tile-edge);
-    padding:7px 11px;border-radius:99px;font-size:13px;font-weight:600;}
   .hero{margin-top:18px;}
   .hero h1{font-size:36px;line-height:1.05;font-weight:800;letter-spacing:-.02em;}
   .hero p{margin-top:12px;color:var(--muted);font-size:14px;line-height:1.55;max-width:320px;}
@@ -79,19 +75,20 @@
   .play-head .qcount b{color:var(--text);font-weight:800;}
   .score-now{font-size:14px;color:var(--muted);}
   .score-now b{color:var(--amber);font-weight:800;}
-  .timerwrap{height:8px;background:var(--panel);border:1px solid var(--tile-edge);border-radius:999px;overflow:hidden;margin-bottom:26px;}
+  .timerwrap{height:8px;background:var(--panel);border:1px solid var(--tile-edge);border-radius:999px;overflow:hidden;margin-bottom:24px;}
   .timerbar{height:100%;width:100%;background:linear-gradient(90deg,var(--mint),var(--amber));border-radius:999px;}
   .qlabel{color:var(--amber);font-size:12px;font-weight:700;letter-spacing:.1em;text-align:center;}
-  .qmean{font-size:21px;font-weight:700;line-height:1.55;text-align:center;margin:16px 6px 28px;
-    min-height:72px;display:flex;align-items:center;justify-content:center;}
-  .choices{display:flex;flex-direction:column;gap:12px;}
-  .choice{width:100%;padding:17px;border-radius:14px;border:1px solid var(--tile-edge);background:var(--tile);
-    color:var(--text);font-size:19px;font-weight:800;letter-spacing:.04em;transition:transform .08s,background .15s,border-color .15s,color .15s;}
+  .qmean{font-size:19px;font-weight:700;line-height:1.5;text-align:center;margin:14px 4px 24px;
+    min-height:66px;display:flex;align-items:center;justify-content:center;}
+  .choices{display:flex;flex-direction:column;gap:11px;}
+  .choice{width:100%;padding:15px 16px;border-radius:14px;border:1px solid var(--tile-edge);background:var(--tile);
+    color:var(--text);font-size:16px;font-weight:600;line-height:1.4;text-align:left;
+    transition:transform .08s,background .15s,border-color .15s,color .15s;}
   .choice:active{transform:scale(.99);}
   .choice.correct{background:rgba(91,214,166,.18);border-color:var(--mint);color:var(--mint);}
   .choice.wrong{background:rgba(232,101,79,.16);border-color:var(--coral);color:var(--coral);}
 
-  /* 결과 (메모리 게임과 동일 배치) */
+  /* 결과 */
   .result-hero{text-align:center;margin-top:18px;}
   .result-hero .label{font-size:13px;color:var(--muted);letter-spacing:.04em;}
   .pct{font-size:72px;font-weight:700;line-height:1;margin-top:6px;letter-spacing:-.03em;}
@@ -126,23 +123,23 @@
   <section class="screen active" id="screen-start">
     <nav class="game-switch">
       <a href="index.html">🧠 오늘의 기억</a>
-      <a href="game.html" class="on">📜 사자성어</a>
-      <a href="safety.html">🦺 안전 찍GO!</a>
+      <a href="game.html">📜 사자성어</a>
+      <a href="safety.html" class="on">🦺 안전 찍GO!</a>
     </nav>
     <div class="hero">
-      <h1>뜻을 보고<br><span class="accent">사자성어</span>를.</h1>
-      <p>10문제, 문제당 5초. 얼마나 알고, 얼마나 빠른가. 계속 도전하세요.</p>
+      <h1>안전, <span class="accent">찍고</span> 간다!</h1>
+      <p>토목·안전 시공 상식 퀴즈. 5문제, 문제당 8초. 아는 만큼 빠르게 찍어보세요.</p>
     </div>
 
     <div class="ident">
       <label>닉네임 (순위표에 표시됩니다)</label>
-      <input id="nameInput" type="text" maxlength="12" placeholder="예: 영업3팀 김민수" autocomplete="off">
+      <input id="nameInput" type="text" maxlength="12" placeholder="예: 안전1팀 김반장" autocomplete="off">
       <div class="conn-state" id="connState">서버에 연결되면 자동으로 순위표에 기록됩니다</div>
     </div>
 
     <div class="spacer"></div>
     <button class="cta" id="btnStart">시작하기</button>
-    <p class="hint">10문제 · 문제당 5초 · 점수로 순위 경쟁</p>
+    <p class="hint">5문제 · 문제당 8초 · 점수로 순위 경쟁</p>
 
     <div class="start-rank" id="startRank" style="display:none">
       <div class="sr-head" id="srHead">🏆 명예의 전당 <span class="sr-sub">TOP 5</span></div>
@@ -157,11 +154,11 @@
   <!-- ============ PLAY ============ -->
   <section class="screen" id="screen-play">
     <div class="play-head">
-      <div class="qcount">문제 <b id="qnum">1</b>/10</div>
+      <div class="qcount">문제 <b id="qnum">1</b>/5</div>
       <div class="score-now">점수 <b class="num" id="curScore">0</b></div>
     </div>
     <div class="timerwrap"><div class="timerbar" id="timerbar"></div></div>
-    <div class="qlabel">이 뜻을 가진 사자성어는?</div>
+    <div class="qlabel">🦺 안전 시공 퀴즈</div>
     <div class="qmean" id="qmean">—</div>
     <div class="choices" id="choices"></div>
   </section>
@@ -181,7 +178,7 @@
         <div class="v num" id="finalScore">0</div>
       </div>
       <div class="stat">
-        <div class="k">정확도</div>
+        <div class="k">정답률</div>
         <div class="v num" id="accuracy">0<small>%</small></div>
       </div>
     </div>
@@ -208,68 +205,29 @@
 </div>
 
 <script>
-/* ===================== 사자성어 데이터 ===================== */
-const IDIOMS = [
-  {i:"유비무환", m:"미리 준비가 되어 있으면 근심할 것이 없음"},
-  {i:"대기만성", m:"큰 그릇은 늦게 완성됨 · 크게 될 사람은 늦게 이루어짐"},
-  {i:"새옹지마", m:"인생의 길흉화복은 미리 헤아릴 수 없음"},
-  {i:"우공이산", m:"어떤 일이든 꾸준히 하면 마침내 이룰 수 있음"},
-  {i:"일석이조", m:"한 가지 일로 두 가지 이익을 얻음"},
-  {i:"죽마고우", m:"어릴 때부터 함께 놀며 자란 오랜 친구"},
-  {i:"다다익선", m:"많으면 많을수록 더욱 좋음"},
-  {i:"온고지신", m:"옛것을 익히어 새로운 것을 앎"},
-  {i:"청출어람", m:"제자나 후배가 스승이나 선배보다 더 뛰어남"},
-  {i:"과유불급", m:"정도를 지나침은 미치지 못함과 같음"},
-  {i:"역지사지", m:"처지를 서로 바꾸어 생각함"},
-  {i:"고진감래", m:"고생 끝에 즐거움이 옴"},
-  {i:"감언이설", m:"남의 비위를 맞추는 달콤한 말"},
-  {i:"동병상련", m:"같은 처지의 사람끼리 서로 가엾게 여김"},
-  {i:"견물생심", m:"물건을 보면 갖고 싶은 욕심이 생김"},
-  {i:"일취월장", m:"나날이 다달이 자라거나 발전함"},
-  {i:"자업자득", m:"자기가 저지른 일의 결과를 자기가 받음"},
-  {i:"인과응보", m:"행한 대로 그에 맞는 결과를 받음"},
-  {i:"오리무중", m:"안개 속에 있어 방향을 알 수 없음 · 갈피를 못 잡음"},
-  {i:"이심전심", m:"마음에서 마음으로 뜻이 서로 통함"},
-  {i:"어부지리", m:"둘이 다투는 사이 엉뚱한 제삼자가 이익을 봄"},
-  {i:"금상첨화", m:"좋은 일 위에 또 좋은 일이 더해짐"},
-  {i:"설상가상", m:"난처한 일이나 불행이 잇따라 겹침"},
-  {i:"유유상종", m:"비슷한 무리끼리 서로 사귐"},
-  {i:"사면초가", m:"사방이 적으로 둘러싸여 고립된 처지"},
-  {i:"전화위복", m:"화가 도리어 복이 됨"},
-  {i:"각골난망", m:"입은 은혜를 뼈에 새겨 잊지 아니함"},
-  {i:"결초보은", m:"죽은 뒤에라도 은혜를 잊지 않고 갚음"},
-  {i:"근묵자흑", m:"나쁜 사람과 가까이하면 나쁜 버릇에 물들기 쉬움"},
-  {i:"아전인수", m:"자기에게만 이롭게 되도록 생각하거나 행동함"},
-  {i:"조삼모사", m:"당장의 차이만 알고 결과가 같음을 모름 · 잔꾀로 속임"},
-  {i:"화룡점정", m:"가장 중요한 부분을 마무리하여 완성함"},
-  {i:"견원지간", m:"개와 원숭이처럼 사이가 매우 나쁜 관계"},
-  {i:"표리부동", m:"겉으로 드러나는 것과 속마음이 다름"},
-  {i:"우유부단", m:"어물거리며 결단을 내리지 못함"},
-  {i:"자포자기", m:"절망에 빠져 자신을 스스로 돌보지 아니함"},
-  {i:"호가호위", m:"남의 권세를 빌려 위세를 부림"},
-  {i:"등하불명", m:"등잔 밑이 어둡듯 가까이 있는 것을 오히려 잘 모름"},
-  {i:"좌충우돌", m:"이리저리 마구 찌르고 부딪침"},
-  {i:"진퇴양난", m:"나아갈 수도 물러설 수도 없는 어려운 처지"},
-  {i:"형설지공", m:"온갖 고생을 하며 부지런히 공부한 보람"},
-  {i:"마이동풍", m:"남의 말을 귀담아듣지 않고 흘려버림"},
-  {i:"반신반의", m:"반은 믿고 반은 의심함"},
-  {i:"백전백승", m:"싸울 때마다 다 이김"},
-  {i:"십중팔구", m:"열 가운데 여덟이나 아홉 · 거의 대부분"},
-  {i:"일편단심", m:"변치 않는 한결같은 마음"},
-  {i:"작심삼일", m:"단단히 먹은 마음이 사흘을 가지 못함"},
-  {i:"천고마비", m:"하늘이 높고 말이 살찌는 풍요로운 가을"},
-  {i:"초지일관", m:"처음에 세운 뜻을 끝까지 밀고 나감"},
-  {i:"팔방미인", m:"여러 방면에 능통한 사람"},
-  {i:"학수고대", m:"학처럼 목을 빼고 몹시 간절히 기다림"},
-  {i:"호연지기", m:"거침없이 넓고 큰 올바른 기운"},
-  {i:"괄목상대", m:"눈을 비비고 다시 볼 만큼 실력이 부쩍 늚"},
-  {i:"권선징악", m:"착한 일을 권하고 악한 일을 벌함"},
-  {i:"타산지석", m:"남의 하찮은 언행도 자기 수양의 거울로 삼음"},
+/* ===================== 안전 퀴즈 데이터 ===================== */
+/* q=문제, a=정답, x=오답 보기들 */
+const QUIZ = [
+  {q:"굴착 작업 중 토사(흙벽) 붕괴를 막기 위해 설치하는 것은?", a:"흙막이 지보공", x:["방음벽","가로등","배수 펌프"]},
+  {q:"2m 이상 높이의 고소작업에서 추락을 막기 위해 반드시 착용하는 것은?", a:"안전대(안전벨트)", x:["귀마개","면장갑","반사조끼"]},
+  {q:"건설현장에서 머리를 보호하기 위해 반드시 써야 하는 보호구는?", a:"안전모", x:["방진마스크","안전화","보안경"]},
+  {q:"밀폐공간(맨홀·탱크 등) 작업 전 반드시 측정해야 하는 것은?", a:"산소 농도", x:["소음","조도(밝기)","습도"]},
+  {q:"크레인으로 중량물을 들어 올릴 때 해서는 안 되는 행동은?", a:"인양물 아래로 지나간다", x:["신호수를 배치한다","줄걸이 상태를 점검한다","정격하중을 확인한다"]},
+  {q:"강관비계 작업발판의 폭은 최소 얼마 이상이어야 하는가?", a:"40cm 이상", x:["10cm 이상","5cm 이상","폭 규정 없음"]},
+  {q:"감전 재해를 예방하기 위한 올바른 조치는?", a:"누전차단기를 설치한다", x:["전선 피복을 벗겨 쓴다","젖은 손으로 조작한다","접지선을 제거한다"]},
+  {q:"불꽃이 튀는 용접 작업 시 화재에 대비해 준비해야 하는 것은?", a:"소화기", x:["우산","확성기","줄자"]},
+  {q:"토공사 착수 전 지반의 안정성을 확인하려고 실시하는 것은?", a:"지반(토질) 조사", x:["도색 작업","조경 공사","현장 청소"]},
+  {q:"추락 위험이 있는 작업발판 가장자리 안전난간의 상부 높이는?", a:"바닥에서 90cm 이상", x:["바닥에서 30cm 이상","바닥에서 10cm 이상","높이 규정 없음"]},
+  {q:"개인보호구(PPE)에 해당하지 않는 것은?", a:"확성기", x:["안전모","안전화","보안경"]},
+  {q:"이동식 사다리 작업 시 안전한 사용법으로 옳은 것은?", a:"3점 지지를 유지한다", x:["맨 위 발판에 올라선다","두 명이 동시에 오른다","미끄러운 바닥에 세운다"]},
+  {q:"중장비 작업 반경 안에서 근로자를 보호하기 위해 배치하는 사람은?", a:"신호수", x:["경리 담당","운전 강사","안내 데스크"]},
+  {q:"바닥 개구부(구멍)에 추락 방지를 위해 설치해야 하는 것은?", a:"덮개 또는 안전난간", x:["화분","광고판","벤치"]},
+  {q:"콘크리트 타설 중 거푸집이 하중을 못 견디면 발생하는 대표적 사고는?", a:"거푸집 붕괴", x:["감전","익사","동상"]},
 ];
 
-const TOTAL=10, TIME_MS=5000, NAME_KEY='memgame_name';
-const NICK_A=['고요한','빠른','강철','은빛','새벽','전설의','조용한','번개','심야','노련한','집중한','무심한'];
-const NICK_B=['여우','두뇌','기억','늑대','부엉이','사슴','매','거북','반달곰','수달','까치','고래'];
+const TOTAL=5, TIME_MS=8000, NAME_KEY='memgame_name', GAME='safety';
+const NICK_A=['꼼꼼한','안전한','든든한','베테랑','신속한','철저한','침착한','노련한','성실한','반듯한','늠름한','현명한'];
+const NICK_B=['반장','기사','주임','대리','작업자','감독','소장','기술자','수달','거북','부엉이','매'];
 
 /* ===================== 헬퍼 ===================== */
 const $=id=>document.getElementById(id);
@@ -287,30 +245,30 @@ const Net = {
   online(){ return location.protocol==='http:'||location.protocol==='https:'; },
   async detect(){
     if(!this.online()) return false;
-    try{ const r=await fetch('/api/scores?game=idiom',{cache:'no-store'}); if(r.ok){ await r.json(); this.available=true; return true; } }catch(e){}
+    try{ const r=await fetch('/api/scores?game='+GAME,{cache:'no-store'}); if(r.ok){ await r.json(); this.available=true; return true; } }catch(e){}
     return false;
   },
   async submit(name,score){
     const r=await fetch('/api/score',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({game:'idiom',name,score,age:0,mode:'normal'})});
+      body:JSON.stringify({game:GAME,name,score,age:0,mode:'normal'})});
     if(!r.ok) throw new Error('submit failed'); return await r.json();
   },
   async fetchAll(){
-    const r=await fetch('/api/scores?game=idiom',{cache:'no-store'});
+    const r=await fetch('/api/scores?game='+GAME,{cache:'no-store'});
     if(!r.ok) throw new Error('fetch failed'); return await r.json();
   }
 };
 
 /* ===================== 가짜 순위표 (외부 · 혼자 모드) ===================== */
 function fakeLeaderboard(myScore){
-  const N = 30 + Math.floor(mulberry32(hashSeed('N'+SEED_STR))()*40); // 30~69명
+  const N = 25 + Math.floor(mulberry32(hashSeed('N'+SEED_STR))()*35);
   function gauss(){ const u=Math.random()||1e-9, v=Math.random()||1e-9; return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
-  // 사자성어 점수 분포: 평균 ~1150, 표준편차 ~430 (만점 약 2000)
-  let higher=0; for(let k=0;k<800;k++){ const s=1150+gauss()*430; if(s>myScore) higher++; }
+  // 안전퀴즈 점수 분포: 평균 ~580, 표준편차 ~220 (만점 약 1000)
+  let higher=0; for(let k=0;k<800;k++){ const s=580+gauss()*220; if(s>myScore) higher++; }
   const pctTop=Math.max(1, Math.min(99, Math.round(higher/800*100)));
   const myRank=Math.max(1, Math.round(higher/800*N));
   function nick(seed){ const rr=mulberry32(seed); return NICK_A[Math.floor(rr()*NICK_A.length)]+' '+NICK_B[Math.floor(rr()*NICK_B.length)]; }
-  const step=Math.max(15, Math.round(myScore*0.02)||30);
+  const step=Math.max(12, Math.round(myScore*0.03)||25);
   function scoreAt(rank){
     if(rank===myRank) return myScore;
     const base=myScore + (myRank-rank)*step;
@@ -332,10 +290,10 @@ function renderGlobalBoard(score){
   const league = lb.pctTop<=5?'💎 다이아 리그':lb.pctTop<=20?'🥇 골드 리그':lb.pctTop<=50?'🥈 실버 리그':'🥉 브론즈 리그';
   $('leagueTag').textContent=league;
   let verdict;
-  if(lb.pctTop<=5) verdict='💎 최상위권. 사자성어 고수시네요.';
+  if(lb.pctTop<=5) verdict='💎 최상위권. 현장 안전왕이시네요!';
   else if(lb.pctTop<=20) verdict='🔥 잘했어요. 상위권까진 한 끗 차이.';
   else if(lb.pctTop<=50) verdict='평균 이상. 한 문제만 더 맞혔으면!';
-  else verdict='아깝다. 다음 판엔 충분히 만회할 수 있어요.';
+  else verdict='아깝다. 안전 상식 한 번 더 다지고 재도전!';
   $('verdict').textContent=verdict;
   const wrap=$('lbRows'); wrap.innerHTML='';
   lb.rows.forEach(r=>{
@@ -357,11 +315,11 @@ function renderDeptBoard(records, myName){
   $('pctLabel').textContent='부서 내 기준';
   $('pctNum').textContent=pct;
   $('lbTitle').textContent='부서 순위표';
-  $('lbSrc').textContent=`사자성어 · ${total}명 참가`;
+  $('lbSrc').textContent=`안전 찍GO · ${total}명 참가`;
   const league = pct<=10?'💎 다이아 리그':pct<=33?'🥇 골드 리그':pct<=66?'🥈 실버 리그':'🥉 브론즈 리그';
   $('leagueTag').textContent=league;
   let verdict;
-  if(myRank===1) verdict='🏆 부서 1위! 자리 지킬 수 있겠어요?';
+  if(myRank===1) verdict='🏆 부서 1위! 안전왕 자리 지켜보세요.';
   else if(pct<=33) verdict='🔥 상위권. 1위까지 노려볼 만해요.';
   else if(pct<=66) verdict='중위권. 한 판만 더 잘 풀면 올라갑니다.';
   else verdict='아직 아래쪽. 최고 기록만 남으니 계속 갱신해보세요.';
@@ -382,11 +340,11 @@ function renderDeptBoard(records, myName){
 
 /* ===================== 명예의 전당 + 내 최고 기록 ===================== */
 function localBestScore(name){
-  try{ const o=JSON.parse(localStorage.getItem('idiom_best')||'{}'); return o[name]||0; }catch(e){ return 0; }
+  try{ const o=JSON.parse(localStorage.getItem('safety_best')||'{}'); return o[name]||0; }catch(e){ return 0; }
 }
 function saveLocalBest(name, score){
-  try{ const o=JSON.parse(localStorage.getItem('idiom_best')||'{}');
-    if(score>(o[name]||0)){ o[name]=score; localStorage.setItem('idiom_best', JSON.stringify(o)); } }catch(e){}
+  try{ const o=JSON.parse(localStorage.getItem('safety_best')||'{}');
+    if(score>(o[name]||0)){ o[name]=score; localStorage.setItem('safety_best', JSON.stringify(o)); } }catch(e){}
 }
 async function loadStartRank(){
   const myName=currentName();
@@ -415,9 +373,8 @@ async function loadStartRank(){
 let name='', questions=[], qIdx=0, score=0, correct=0, timer=null, tStart=0, answered=false;
 
 function buildQuestions(){
-  return shuffle(IDIOMS).slice(0,TOTAL).map(ans=>{
-    const distractors=shuffle(IDIOMS.filter(x=>x.i!==ans.i)).slice(0,3);
-    return { mean:ans.m, answer:ans.i, options:shuffle([ans,...distractors]).map(o=>o.i) };
+  return shuffle(QUIZ).slice(0,TOTAL).map(item=>{
+    return { q:item.q, answer:item.a, options:shuffle([item.a, ...item.x]) };
   });
 }
 function currentName(){ const v=($('nameInput').value||'').trim(); return v.slice(0,12) || '익명'; }
@@ -434,7 +391,7 @@ function renderQuestion(){
   const q=questions[qIdx];
   $('qnum').textContent=qIdx+1;
   $('curScore').textContent=score;
-  $('qmean').textContent=q.mean;
+  $('qmean').textContent=q.q;
   const box=$('choices'); box.innerHTML='';
   q.options.forEach(opt=>{ const b=document.createElement('button'); b.className='choice'; b.textContent=opt; b.onclick=()=>choose(b,opt,q); box.appendChild(b); });
   const bar=$('timerbar'); bar.style.transition='none'; bar.style.width='100%'; void bar.offsetWidth;
@@ -449,7 +406,7 @@ function choose(btn, opt, q){
   [...document.querySelectorAll('.choice')].forEach(b=>{ b.disabled=true;
     if(b.textContent===q.answer) b.classList.add('correct'); else if(b===btn) b.classList.add('wrong'); });
   if(isRight){ correct++; const remain=Math.max(0,TIME_MS-elapsed); score += 100 + Math.round((remain/TIME_MS)*100); $('curScore').textContent=score; }
-  setTimeout(()=>{ qIdx++; (qIdx>=TOTAL)?finish():renderQuestion(); }, isRight?650:1050);
+  setTimeout(()=>{ qIdx++; (qIdx>=TOTAL)?finish():renderQuestion(); }, isRight?700:1100);
 }
 
 async function finish(){
@@ -458,7 +415,6 @@ async function finish(){
   $('finalScore').textContent=score.toLocaleString();
   $('accuracy').innerHTML=acc+'<small>%</small>';
   show('result');
-  // 순위표: 서버 연결이면 실제 공유, 아니면 가짜(전 세계 기준)
   if(Net.online()){
     if(!Net.available) await Net.detect();
     if(Net.available){
@@ -466,7 +422,7 @@ async function finish(){
       catch(e){ try{ renderDeptBoard(await Net.fetchAll(), name); return; }catch(e2){} }
     }
   }
-  renderGlobalBoard(score); // 외부/혼자 모드
+  renderGlobalBoard(score);
 }
 
 /* ===================== 초기화 ===================== */
@@ -477,7 +433,7 @@ async function finish(){
     if(ok){ cs.className='conn-state ok'; cs.textContent='✓ 부서 서버에 연결됨 · 기록이 저장됩니다'; }
     else if(Net.online()){ cs.className='conn-state'; cs.textContent='순위 서버에 연결 안 됨 · 혼자 모드 (외부 순위만 표시)'; }
     else{ cs.className='conn-state'; cs.textContent='혼자 모드 (파일로 열림) · 순위 저장은 서버 접속 필요'; }
-    loadStartRank();   // 명예의 전당 + 내 최고 기록 (서버/오프라인 모두)
+    loadStartRank();
   });
   $('btnStart').onclick=startGame;
   $('nameInput').addEventListener('keydown',e=>{ if(e.key==='Enter') startGame(); });

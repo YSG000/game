@@ -31,6 +31,7 @@ DATA_FILE = os.environ.get("SCORES_FILE", os.path.join(BASE_DIR, "scores.json"))
 # 경로 → 파일 매핑
 MEMORY_FILE = "index.html"   # 오늘의 기억 게임 (GitHub Pages 진입점 겸용)
 IDIOM_FILE = "game.html"     # 사자성어 스피드퀴즈
+SAFETY_FILE = "safety.html"  # 안전 찍GO!
 PAGES = {
     "/": "hub.html",
     "/hub": "hub.html",
@@ -41,9 +42,11 @@ PAGES = {
     "/idiom": IDIOM_FILE,
     "/game.html": IDIOM_FILE,
     "/idiom.html": IDIOM_FILE,                     # 옛 이름 하위호환
+    "/safety": SAFETY_FILE,
+    "/safety.html": SAFETY_FILE,
 }
 
-GAMES = ("memory", "idiom")
+GAMES = ("memory", "idiom", "safety")
 
 _lock = threading.Lock()
 
