@@ -91,6 +91,10 @@
   .choice:active{transform:scale(.99);}
   .choice.correct{background:rgba(91,214,166,.18);border-color:var(--mint);color:var(--mint);}
   .choice.wrong{background:rgba(232,101,79,.16);border-color:var(--coral);color:var(--coral);}
+  .play-foot{margin-top:auto;padding-top:24px;display:flex;gap:8px;}
+  .pf-btn{background:transparent;border:1px solid var(--tile-edge);color:var(--muted);font-family:inherit;
+    font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:8px;cursor:pointer;transition:transform .12s;}
+  .pf-btn:active{transform:scale(.95);}
 
   /* 결과 (메모리 게임과 동일 배치) */
   .result-hero{text-align:center;margin-top:18px;}
@@ -165,6 +169,10 @@
     <div class="qlabel">이 뜻을 가진 사자성어는?</div>
     <div class="qmean" id="qmean">—</div>
     <div class="choices" id="choices"></div>
+    <div class="play-foot">
+      <button class="pf-btn" id="btnRestart">↺ 처음부터</button>
+      <button class="pf-btn" id="btnHomePlay">🏠 홈으로</button>
+    </div>
   </section>
 
   <!-- ============ RESULT ============ -->
@@ -483,6 +491,8 @@ async function finish(){
   $('nameInput').addEventListener('keydown',e=>{ if(e.key==='Enter') startGame(); });
   $('btnRetry').onclick=startGame;
   $('btnHome').onclick=()=>{ show('start'); };
+  $('btnRestart').onclick=()=>{ clearTimeout(timer); answered=true; startGame(); };
+  $('btnHomePlay').onclick=()=>{ clearTimeout(timer); answered=true; show('start'); };
 })();
 </script>
 </body>
